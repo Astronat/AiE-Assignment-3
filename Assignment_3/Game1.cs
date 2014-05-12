@@ -17,12 +17,21 @@ namespace Assignment_3 {
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
+		private Stage gameStage;
+
+		GameState gameState = GameState.Game;
+
 		public Game1()
 			: base() {
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 		}
 
+
+		public void ResetObjects() {
+			gameStage = new Stage(new Rectangle(0, 0, 
+				graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight));
+		}
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -30,7 +39,7 @@ namespace Assignment_3 {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
-			// TODO: Add your initialization logic here
+			ResetObjects();
 
 			base.Initialize();
 		}
@@ -43,7 +52,7 @@ namespace Assignment_3 {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// TODO: use this.Content to load your game content here
+			Stage.LoadContent();
 		}
 
 		/// <summary>
@@ -63,7 +72,11 @@ namespace Assignment_3 {
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
-			// TODO: Add your update logic here
+			switch (gameState) {
+				case GameState.Game:
+					gameStage.Update();
+					break;
+			}
 
 			base.Update(gameTime);
 		}
@@ -75,9 +88,23 @@ namespace Assignment_3 {
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			// TODO: Add your drawing code here
+			spriteBatch.Begin();
+
+			switch (gameState) {
+				case GameState.Game:
+					gameStage.Draw(spriteBatch);
+					break;
+			}
+
+			spriteBatch.End();
 
 			base.Draw(gameTime);
 		}
+	}
+
+	enum GameState {
+		Menu,
+		Game,
+		GameOver
 	}
 }
