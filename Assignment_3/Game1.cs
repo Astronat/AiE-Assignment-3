@@ -17,6 +17,8 @@ namespace Assignment_3 {
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
+		public static Random gameRand = new Random();
+
 		private Stage gameStage;
 
 		GameState gameState = GameState.Game;
@@ -86,7 +88,7 @@ namespace Assignment_3 {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime) {
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			spriteBatch.Begin();
 
