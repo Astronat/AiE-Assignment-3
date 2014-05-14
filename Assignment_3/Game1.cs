@@ -5,8 +5,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.GamerServices;
 #endregion
 
 namespace Assignment_3 {
@@ -19,6 +17,7 @@ namespace Assignment_3 {
 
 		public static Random GameRand = new Random();
 		public static Texture2D OnePxWhite;
+		public static Size GameBounds;
 
 		private Stage gameStage;
 
@@ -31,8 +30,7 @@ namespace Assignment_3 {
 		}
 		
 		public void ResetObjects() {
-			gameStage = new Stage(new Rectangle(0, 0, 
-				graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight));
+			gameStage = new Stage();
 		}
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -41,6 +39,7 @@ namespace Assignment_3 {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
+			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 			ResetObjects();
 			base.Initialize();
 		}

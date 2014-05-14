@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Assignment_3 {
 	class Stage {
-		private Rectangle bounds;
-
 		public List<Rectangle> GroundChunks = new List<Rectangle>();
 
 		public List<Ammo> AmmoPickups = new List<Ammo>(); 
@@ -20,11 +18,9 @@ namespace Assignment_3 {
 		private float deathWallIntesity = 0.5f;
 		private bool deathWallGrowing = false;
 
-		public Stage(Rectangle gameBounds) {
-			bounds = gameBounds;
-
+		public Stage() {
 			//Starting chunk
-			GroundChunks.Add(new Rectangle(0, gameBounds.Height - 80, (int)(gameBounds.Width * 1.5f), 80));
+			GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - 80, (int)(Game1.GameBounds.Width * 1.5f), 80));
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -39,7 +35,7 @@ namespace Assignment_3 {
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
 				sb.Draw(Game1.OnePxWhite,
-				        new Rectangle((int)currentStart, bounds.Bottom - t.Height, t.Width,
+						new Rectangle((int)currentStart, Game1.GameBounds.Height - t.Height, t.Width,
 				                      t.Height), Color.FromNonPremultiplied(50,50,50,255));
 				currentStart += t.Width;
 			}
@@ -50,8 +46,8 @@ namespace Assignment_3 {
 			//Draw the individual lines that make up the floor
 			for (var i = 0; i < GroundChunks.Count; i++ ) {
 				//Draw horizontal lines
-				DrawLine(sb, new Vector2(currentStart, bounds.Bottom - GroundChunks[i].Height),
-						 new Vector2(currentStart + GroundChunks[i].Width, bounds.Bottom - GroundChunks[i].Height), LineWidth, Color.White);
+				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - GroundChunks[i].Height),
+						 new Vector2(currentStart + GroundChunks[i].Width, Game1.GameBounds.Height - GroundChunks[i].Height), LineWidth, Color.White);
 
 				//Add to the current start position before the vertical lines to simplify the below very slightly
 				currentStart += GroundChunks[i].Width;
@@ -66,12 +62,12 @@ namespace Assignment_3 {
 				var bottom = Math.Min(GroundChunks[i].Height, GroundChunks[i + 1].Height);
 
 				//Then draw the line
-				DrawLine(sb, new Vector2(currentStart, bounds.Bottom - bottom + (LineWidth / 2)),
-				         new Vector2(currentStart, bounds.Bottom - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
+				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
+				         new Vector2(currentStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
 
 			//Draw the Ominous Wall of Death
-			DrawLine(sb, new Vector2(0, 0), new Vector2(0, bounds.Height), 16f, 
+			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f, 
 				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 		}
 
@@ -80,15 +76,17 @@ namespace Assignment_3 {
 			var totalWidth = GroundChunks.Sum(item => item.Width);
 			
 			//Check if a new chunk is required, generate and add it if it is
-			if (totalWidth - Math.Abs(XPosition) < bounds.Width + LineWidth) {
+			if (totalWidth - Math.Abs(XPosition) < Game1.GameBounds.Width + LineWidth) {
+				//Randomized chunk height and width
+				//TODO: Make the height always be n pixels above or below the last chunk for variance
 				var rndHeight = Game1.GameRand.Next(70, 160);
-				var rndWidth = Game1.GameRand.Next(150, bounds.Width/2);
+				var rndWidth = Game1.GameRand.Next(150, Game1.GameBounds.Width/2);
 				
-				GroundChunks.Add(new Rectangle(0, bounds.Height - rndHeight, rndWidth, rndHeight));
+				GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight));
 
 				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
 				if (Game1.GameRand.NextDouble() > 0.7) {
-					AmmoPickups.Add(new Ammo(new Vector2(bounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.GameRand.NextDouble()), bounds.Height - rndHeight - 60)));
+					AmmoPickups.Add(new Ammo(new Vector2(Game1.GameBounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - rndHeight - 60)));
 				}
 			}
 
@@ -105,8 +103,8 @@ namespace Assignment_3 {
 			AmmoPickups.RemoveAll(item => !item.Alive);
 			
 			//The above 2 ammo-related chunks are separate as when they were both in
-			//a for-loop, for some reason it was occasionally doing strange double-dips
-			//into their Update()s on occasion (!?) and basically randomly skipping pickups
+			//a for-loop, for some reason it wasdoing strange double-dips into their 
+			//Update()s on occasion (!?) and basically randomly skipping pickups
 			//forwards a few pixels.
 
 			//If the first chunk in the array is completely off screen, remove it and reset the scroll speed
