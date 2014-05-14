@@ -19,6 +19,8 @@ namespace Assignment_3 {
 
 		public static Random gameRand = new Random();
 
+		public static Texture2D OnePxWhite;
+
 		private Stage gameStage;
 
 		GameState gameState = GameState.Game;
@@ -53,8 +55,11 @@ namespace Assignment_3 {
 		protected override void LoadContent() {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+			
+			OnePxWhite = new Texture2D(new GraphicsDevice(), 1, 1);
+			OnePxWhite.SetData(new[] { Color.White });
 
-			Stage.LoadContent();
+			//Stage.LoadContent();
 		}
 
 		/// <summary>

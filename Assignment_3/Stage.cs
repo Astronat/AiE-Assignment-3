@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Assignment_3 {
 	class Stage {
-		public static Texture2D FloorTexture;
-
 		private Rectangle bounds;
 		public List<Rectangle> GroundChunks = new List<Rectangle>();
 
@@ -23,20 +20,14 @@ namespace Assignment_3 {
 			//Starting chunk
 			GroundChunks.Add(new Rectangle(0, gameBounds.Height - 80, (int)(gameBounds.Width * 1.5f), 80));
 		}
-
-		//Loads a 1x1 white texture into memory
-		public static void LoadContent() {
-			FloorTexture = new Texture2D(new GraphicsDevice(), 1, 1);
-			FloorTexture.SetData(new[] { Color.White });
-		}
-
+		
 		public void Draw(SpriteBatch sb) {
 			var currentStart = -(int)XPosition;
 
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
-				sb.Draw(FloorTexture,
+				sb.Draw(Game1.OnePxWhite,
 				        new Rectangle(currentStart, bounds.Bottom - t.Height, t.Width,
 				                      t.Height), Color.FromNonPremultiplied(50,50,50,255));
 				currentStart += t.Width;
@@ -94,10 +85,10 @@ namespace Assignment_3 {
 			var tan = b - a;
 			var rotation = (float)Math.Atan2(tan.Y, tan.X);
 
-			var middlePoint = new Vector2(0, FloorTexture.Height / 2f);
+			var middlePoint = new Vector2(0, Game1.OnePxWhite.Height / 2f);
 			var scale = new Vector2(tan.Length(), thickness);
 
-			sb.Draw(FloorTexture, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
+			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
 		}
 	}
 }
