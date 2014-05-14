@@ -17,6 +17,9 @@ namespace Assignment_3 {
 		public float ScrollSpeed = 2f;
 		public float XPosition = 0f;
 
+		private float deathWallIntesity = 0.5f;
+		private bool deathWallGrowing = false;
+
 		public Stage(Rectangle gameBounds) {
 			bounds = gameBounds;
 
@@ -67,6 +70,7 @@ namespace Assignment_3 {
 				         new Vector2(currentStart, bounds.Bottom - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
 
+			DrawLine(sb, new Vector2(0, 0), new Vector2(0, bounds.Height), 16f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 		}
 
 		public void Update () {
@@ -82,10 +86,12 @@ namespace Assignment_3 {
 
 				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
 				if (Game1.gameRand.NextDouble() > 0.7) {
-					Console.WriteLine("Creating new pickup");
 					AmmoPickups.Add(new Ammo(new Vector2(bounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.gameRand.NextDouble()), bounds.Height - rndHeight - 60)));
 				}
 			}
+
+			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
+			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
 			//Update each ammo pickup
 			foreach (var a in AmmoPickups) {
