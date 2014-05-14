@@ -31,6 +31,10 @@ namespace Assignment_3 {
 				a.Draw(sb);
 			}
 
+			//Draw the Ominous Wall of Death
+			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
@@ -65,10 +69,6 @@ namespace Assignment_3 {
 				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
 				         new Vector2(currentStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
-
-			//Draw the Ominous Wall of Death
-			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f, 
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 		}
 
 		public void Update () {
@@ -86,7 +86,9 @@ namespace Assignment_3 {
 
 				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
 				if (Game1.GameRand.NextDouble() > 0.7) {
-					AmmoPickups.Add(new Ammo(new Vector2(Game1.GameBounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - rndHeight - 60)));
+					AmmoPickups.Add(new Ammo(
+						new Vector2(Game1.GameBounds.Width + LineWidth + (float)((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size) * Game1.GameRand.NextDouble()), 
+							Game1.GameBounds.Height - rndHeight - 60)));
 				}
 			}
 
@@ -103,13 +105,13 @@ namespace Assignment_3 {
 			AmmoPickups.RemoveAll(item => !item.Alive);
 			
 			//The above 2 ammo-related chunks are separate as when they were both in
-			//a for-loop, for some reason it wasdoing strange double-dips into their 
+			//a for-loop, for some reason it was doing strange double-dips into their 
 			//Update()s on occasion (!?) and basically randomly skipping pickups
 			//forwards a few pixels.
 
 			//If the first chunk in the array is completely off screen, remove it and reset the scroll speed
 			if (GroundChunks[0].Width <= Math.Abs(XPosition)) {
-				XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 2);
+				XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 4f);
 				GroundChunks.RemoveAt(0);
 			} else
 				XPosition -= ScrollSpeed;
