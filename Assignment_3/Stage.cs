@@ -70,7 +70,9 @@ namespace Assignment_3 {
 				         new Vector2(currentStart, bounds.Bottom - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
 
-			DrawLine(sb, new Vector2(0, 0), new Vector2(0, bounds.Height), 16f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+			//Draw the Ominous Wall of Death
+			DrawLine(sb, new Vector2(0, 0), new Vector2(0, bounds.Height), 16f, 
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 		}
 
 		public void Update () {
@@ -79,17 +81,18 @@ namespace Assignment_3 {
 			
 			//Check if a new chunk is required, generate and add it if it is
 			if (totalWidth - Math.Abs(XPosition) < bounds.Width + LineWidth) {
-				var rndHeight = Game1.gameRand.Next(70, 160);
-				var rndWidth = Game1.gameRand.Next(150, bounds.Width/2);
+				var rndHeight = Game1.GameRand.Next(70, 160);
+				var rndWidth = Game1.GameRand.Next(150, bounds.Width/2);
 				
 				GroundChunks.Add(new Rectangle(0, bounds.Height - rndHeight, rndWidth, rndHeight));
 
 				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
-				if (Game1.gameRand.NextDouble() > 0.7) {
-					AmmoPickups.Add(new Ammo(new Vector2(bounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.gameRand.NextDouble()), bounds.Height - rndHeight - 60)));
+				if (Game1.GameRand.NextDouble() > 0.7) {
+					AmmoPickups.Add(new Ammo(new Vector2(bounds.Width + LineWidth + (float)(GroundChunks[GroundChunks.Count - 1].Width * Game1.GameRand.NextDouble()), bounds.Height - rndHeight - 60)));
 				}
 			}
 
+			//Switches between increasing and decreasing the death wall's intensity, then does so
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 

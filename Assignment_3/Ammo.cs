@@ -21,8 +21,7 @@ namespace Assignment_3 {
 		}
 
 		public void Update(float speed) {
-			//If the pickup has moved off the left side of the screen
-			//proceed to kill it
+			//If the pickup has moved off the left side of the screen, proceed to kill it
 			if (Position.X + Size + 1 < 0) {
 				Alive = false;
 			}
@@ -30,5 +29,8 @@ namespace Assignment_3 {
 			//Move the ammo hitbox left
 			Position.X -= speed;
 		}
+
+		//A hitbox rectangle representing the pickup
+		public Rectangle HitBox { get { return new Rectangle((int) Position.X, (int) Position.Y, Size, Size); } }
 	}
 }

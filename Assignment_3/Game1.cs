@@ -14,24 +14,22 @@ namespace Assignment_3 {
 	/// This is the main type for your game
 	/// </summary>
 	public class Game1 : Game {
-		GraphicsDeviceManager graphics;
+		private readonly GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
-		public static Random gameRand = new Random();
-
+		public static Random GameRand = new Random();
 		public static Texture2D OnePxWhite;
 
 		private Stage gameStage;
 
-		GameState gameState = GameState.Game;
+		private GameState gameState = GameState.Game;
 
 		public Game1()
 			: base() {
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 		}
-
-
+		
 		public void ResetObjects() {
 			gameStage = new Stage(new Rectangle(0, 0, 
 				graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight));
@@ -44,7 +42,6 @@ namespace Assignment_3 {
 		/// </summary>
 		protected override void Initialize() {
 			ResetObjects();
-
 			base.Initialize();
 		}
 
@@ -61,14 +58,7 @@ namespace Assignment_3 {
 
 			//Stage.LoadContent();
 		}
-
-		/// <summary>
-		/// UnloadContent will be called once per game and is the place to unload
-		/// all content.
-		/// </summary>
-		protected override void UnloadContent() {
-			// TODO: Unload any non ContentManager content here
-		}
+		protected override void UnloadContent() {}
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -109,6 +99,7 @@ namespace Assignment_3 {
 		}
 	}
 
+	//Contains each of the game's possible states
 	enum GameState {
 		Menu,
 		Game,
