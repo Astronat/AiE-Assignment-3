@@ -8,8 +8,9 @@ namespace Assignment_3 {
 	class Stage {
 		public List<Rectangle> GroundChunks = new List<Rectangle>();
 
-		public List<Ammo> AmmoPickups = new List<Ammo>(); 
-
+		public List<Ammo> AmmoPickups = new List<Ammo>();
+		public List<Enemy> Enemies = new List<Enemy>();
+ 
 		private const float LineWidth = 8f;
 
 		public float ScrollSpeed = 2f;
@@ -26,10 +27,9 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) {
 			var currentStart = XPosition;
 
-			//Draw each ammo pickup
-			foreach (var a in AmmoPickups) {
-				a.Draw(sb);
-			}
+			//Draw ammo and enemies
+			foreach (var a in AmmoPickups) a.Draw(sb);
+			foreach (var e in Enemies) e.Draw(sb);
 
 			//Draw the Ominous Wall of Death
 			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
@@ -79,16 +79,25 @@ namespace Assignment_3 {
 			if (totalWidth - Math.Abs(XPosition) < Game1.GameBounds.Width + LineWidth) {
 				//Randomized chunk height and width
 				//TODO: Make the height always be n pixels above or below the last chunk for variance
+				//TODO: Add pits
 				var rndHeight = Game1.GameRand.Next(70, 160);
 				var rndWidth = Game1.GameRand.Next(150, Game1.GameBounds.Width/2);
 				
 				GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight));
 
+				var spawnChance = Game1.GameRand.NextDouble();
+
 				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
-				if (Game1.GameRand.NextDouble() > 0.7) {
+				if (spawnChance > 0.7) {
 					AmmoPickups.Add(new Ammo(
 						new Vector2(Game1.GameBounds.Width + LineWidth + (float)((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size) * Game1.GameRand.NextDouble()), 
 							Game1.GameBounds.Height - rndHeight - 60)));
+				}
+				else if (spawnChance > 0.5) {
+					Console.WriteLine("Spawned Enemy");
+					Enemies.Add(new Enemy(
+						new Vector2(Game1.GameBounds.Width + LineWidth + (float)((GroundChunks[GroundChunks.Count - 1].Width - Enemy.Size.X) * Game1.GameRand.NextDouble()), 
+							Game1.GameBounds.Height - rndHeight)));
 				}
 			}
 
@@ -97,9 +106,8 @@ namespace Assignment_3 {
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
 			//Update each ammo pickup
-			foreach (var a in AmmoPickups) {
-				a.Update(ScrollSpeed);
-			}
+			foreach (var a in AmmoPickups) a.Update(ScrollSpeed);
+			foreach (var e in Enemies) e.Update(ScrollSpeed, new Vector2(0, 0)); /*TODO: Replace placeholder Vector with player location*/
 
 			//Remove all dead pickups
 			AmmoPickups.RemoveAll(item => !item.Alive);

@@ -17,7 +17,7 @@ namespace Assignment_3 {
 
 		//Draws a SizexSize yellow box
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Position.X, (int)Position.Y, Size, Size), Color.Yellow);
+			sb.Draw(Game1.OnePxWhite, HitBox, Color.Yellow);
 		}
 
 		public void Update(float speed) {
