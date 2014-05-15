@@ -13,8 +13,15 @@ namespace Assignment_3 {
  
 		private const float LineWidth = 8f;
 
+		//Used to move the first Chunk in the Chunk List to the left and off the screen
+		//The idea is that XPosition is the negative position of the first chunk
+		//and every chunk following is just "stuck" to the end of the first chunk
+		//hence, as the first chunk goes completely off screen, Xposition is reset
+		//and the first chunk is removed, making the second chunk become the leading chunk
+		//again.
+		//Could be simpler. Chunk movement handling should probably be rewritten.
 		public float ScrollSpeed = 2f;
-		public float XPosition = 0f;
+		public float XPosition = 0f; 
 
 		private float deathWallIntesity = 0.5f;
 		private bool deathWallGrowing = false;
@@ -33,6 +40,11 @@ namespace Assignment_3 {
 
 			//Draw the Ominous Wall of Death
 			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+
+			//Draw "pits will kill you" line thingy
+			DrawLine(sb, new Vector2(0, Game1.GameBounds.Height), 
+				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
 				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
 			//Draw each section's background
@@ -79,25 +91,40 @@ namespace Assignment_3 {
 			if (totalWidth - Math.Abs(XPosition) < Game1.GameBounds.Width + LineWidth) {
 				//Randomized chunk height and width
 				//TODO: Make the height always be n pixels above or below the last chunk for variance
-				//TODO: Add pits
+
+				//Determine if the current chunk should be a pit chunk
+				var isPit = (Game1.GameRand.NextDouble() > 0.9);
+
 				var rndHeight = Game1.GameRand.Next(70, 160);
-				var rndWidth = Game1.GameRand.Next(150, Game1.GameBounds.Width/2);
-				
-				GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight));
+				//Pit chunks should always be smaller than normal chunks so jumping them is actually possible
+				var rndWidth = (!isPit ? Game1.GameRand.Next(150, Game1.GameBounds.Width/2) 
+										: Game1.GameRand.Next(50, 150));
+
+				//Add a new chunk, if it's a pit make it a good bit lower than the screen
+				GroundChunks.Add(!isPit
+					                 ? new Rectangle(0, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight)
+					                 : new Rectangle(0, Game1.GameBounds.Height + 200, rndWidth, -200));
 
 				var spawnChance = Game1.GameRand.NextDouble();
 
-				//30% chance to add an ammo pickup to the new chunk; This may need to be tweaked
-				if (spawnChance > 0.7) {
-					AmmoPickups.Add(new Ammo(
-						new Vector2(Game1.GameBounds.Width + LineWidth + (float)((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size) * Game1.GameRand.NextDouble()), 
-							Game1.GameBounds.Height - rndHeight - 60)));
-				}
-				else if (spawnChance > 0.5) {
-					Console.WriteLine("Spawned Enemy");
-					Enemies.Add(new Enemy(
-						new Vector2(Game1.GameBounds.Width + LineWidth + (float)((GroundChunks[GroundChunks.Count - 1].Width - Enemy.Size.X) * Game1.GameRand.NextDouble()), 
-							Game1.GameBounds.Height - rndHeight)));
+				//Not a pit, so go ahead and maybe add ammo or an enemy
+				if (!isPit) {
+					//Chance to add an ammo pickup to the new chunk; This may need to be tweaked
+					if (spawnChance > 0.7) {
+						AmmoPickups.Add(new Ammo(
+							                new Vector2(
+								                Game1.GameBounds.Width + LineWidth +
+								                (float) ((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size)*Game1.GameRand.NextDouble()),
+								                Game1.GameBounds.Height - rndHeight - 60)));
+					}
+						//Same as above, but for enemies
+					else if (spawnChance > 0.5) {
+						Enemies.Add(new Enemy(
+							            new Vector2(
+								            Game1.GameBounds.Width + LineWidth +
+								            (float) ((GroundChunks[GroundChunks.Count - 1].Width - Enemy.Size.X)*Game1.GameRand.NextDouble()),
+								            Game1.GameBounds.Height - rndHeight)));
+					}
 				}
 			}
 
@@ -105,23 +132,24 @@ namespace Assignment_3 {
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
-			//Update each ammo pickup
+			//Update each object
 			foreach (var a in AmmoPickups) a.Update(ScrollSpeed);
 			foreach (var e in Enemies) e.Update(ScrollSpeed, new Vector2(0, 0)); /*TODO: Replace placeholder Vector with player location*/
 
-			//Remove all dead pickups
+			//Remove all dead objects
 			AmmoPickups.RemoveAll(item => !item.Alive);
+			Enemies.RemoveAll(item => !item.Alive);
 			
 			//The above 2 ammo-related chunks are separate as when they were both in
 			//a for-loop, for some reason it was doing strange double-dips into their 
 			//Update()s on occasion (!?) and basically randomly skipping pickups
 			//forwards a few pixels.
 
-			//If the first chunk in the array is completely off screen, remove it and reset the scroll speed
+			//If the first chunk in the array is completely off screen, remove it and reset the scroll position
 			if (GroundChunks[0].Width <= Math.Abs(XPosition)) {
 				XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 4f);
 				GroundChunks.RemoveAt(0);
-			} else
+			} else //Else just continue to update the scroll position
 				XPosition -= ScrollSpeed;
 		}
 
