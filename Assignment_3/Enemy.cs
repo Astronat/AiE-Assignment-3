@@ -11,7 +11,7 @@ namespace Assignment_3 {
 		public Vector2 Position;
 		public Vector2 Crosshair;
 
-		public static Vector2 Size = new Vector2(40, 40);
+		public static Size SpriteSize = new Size(40, 40);
 
 		public bool Alive = true;
 		
@@ -27,7 +27,7 @@ namespace Assignment_3 {
 			//TODO: Update aim direction
 
 			//If the enemy has moved off the left side of the screen, proceed to kill it
-			if (Position.X + Size.X + 1 < 0) {
+			if (Position.X + SpriteSize.Width + 1 < 0) {
 				Alive = false;
 			}
 
@@ -36,10 +36,12 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) {
 			sb.Draw(Game1.OnePxWhite, HitBox, Color.LightCoral);
 
-			/*TODO: Draw turret*/
+			/*TODO: Draw turret cannon*/
 		}
 
 		//A hitbox rectangle representing the Enemy
-		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y-(int)Size.Y, (int)Size.X, (int)Size.Y); } }
+		public Rectangle HitBox { get {
+			return new Rectangle((int)Position.X, (int)Position.Y-(int)SpriteSize.Height, (int)SpriteSize.Width, (int)SpriteSize.Height);
+		} }
 	}
 }

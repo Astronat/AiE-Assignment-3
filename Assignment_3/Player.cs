@@ -10,7 +10,10 @@ using Microsoft.Xna.Framework.Input;
 namespace Assignment_3 {
 	internal class Player {
 		public Vector2 Position;
-		public Vector2 Size = new Vector2(32, 64);
+		public static Size PlayerSize = new Size(32, 64);
+
+		public float MovementSpeed = 5.0f;
+		public float Momentum = 0f;
 
 		public bool Alive = true;
 
@@ -25,10 +28,19 @@ namespace Assignment_3 {
 			Position = startPos;
 		}
 
-		public void Update(KeyboardState ks) {
-			/*TODO: Player movement and action code*/
-			if (ks.IsKeyDown(Keys.Left)) { }
-			if (ks.IsKeyDown(Keys.Right)) { }
+		public void Update(KeyboardState ks, float stageSpeed, MovementAllowed freedoms) {
+			Position.X -= stageSpeed;
+
+			if (ks.IsKeyDown(Keys.Left) && freedoms.Left) {
+				Position.X -= MovementSpeed;
+			}
+			else if (ks.IsKeyDown(Keys.Right) && freedoms.Right) {
+				Position.X += MovementSpeed;
+				if (Position.X + PlayerSize.Width > Game1.GameBounds.Width) 
+					Position.X = Game1.GameBounds.Width - PlayerSize.Width;
+			}
+
+			if (Position.X < 0) Position.X = 0;
 			//if (ks.IsKeyDown(Keys.X)) { } //Jump?
 			//if (ks.IsKeyDown(Keys.Z)) { } //Shoot?
 		}
@@ -36,6 +48,11 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) { sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen); }
 
 		//A hitbox rectangle representing the Player sprite
-		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y); } }
+		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, (int)PlayerSize.Width, (int)PlayerSize.Height); } }
+		
+	}
+
+	public struct MovementAllowed {
+		public bool Left, Right, Down;
 	}
 }

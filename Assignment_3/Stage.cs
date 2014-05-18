@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Assignment_3 {
 	class Stage {
@@ -12,6 +13,8 @@ namespace Assignment_3 {
 		public List<Enemy> Enemies = new List<Enemy>();
  
 		private const float LineWidth = 8f;
+
+		public Player PlayerOne;
 
 		//Used to move the first Chunk in the Chunk List to the left and off the screen
 		//The idea is that XPosition is the negative position of the first chunk
@@ -29,6 +32,8 @@ namespace Assignment_3 {
 		public Stage() {
 			//Starting chunk
 			GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - 80, (int)(Game1.GameBounds.Width * 1.5f), 80));
+
+			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 3));
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -81,9 +86,12 @@ namespace Assignment_3 {
 				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
 				         new Vector2(currentStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
+
+			//Draw the player
+			PlayerOne.Draw(sb);
 		}
 
-		public void Update () {
+		public void Update (KeyboardState kState) {
 			//The sum of each of the chunks' lengths
 			var totalWidth = GroundChunks.Sum(item => item.Width);
 			
@@ -122,7 +130,7 @@ namespace Assignment_3 {
 						Enemies.Add(new Enemy(
 							            new Vector2(
 								            Game1.GameBounds.Width + LineWidth +
-								            (float) ((GroundChunks[GroundChunks.Count - 1].Width - Enemy.Size.X)*Game1.GameRand.NextDouble()),
+								            (float) ((GroundChunks[GroundChunks.Count - 1].Width - Enemy.SpriteSize.Width)*Game1.GameRand.NextDouble()),
 								            Game1.GameBounds.Height - rndHeight)));
 					}
 				}
@@ -151,6 +159,10 @@ namespace Assignment_3 {
 				GroundChunks.RemoveAt(0);
 			} else //Else just continue to update the scroll position
 				XPosition -= ScrollSpeed;
+
+			var ma = new MovementAllowed {Left = true, Right = true, Down = true};
+
+			PlayerOne.Update(kState, ScrollSpeed, ma);
 		}
 
 		//Effectively draws a white line between two points

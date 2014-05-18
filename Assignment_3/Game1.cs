@@ -67,7 +67,7 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Game:
-					gameStage.Update();
+					gameStage.Update(Keyboard.GetState());
 					break;
 			}
 
