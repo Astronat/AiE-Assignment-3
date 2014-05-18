@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Drawing;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Assignment_3 {
 	class Util {
@@ -16,6 +18,10 @@ namespace Assignment_3 {
 			var b = (int)(colorA.B * aAmount + colorB.B * bAmount);
 
 			return Color.FromNonPremultiplied(r, g, b, 255);
+		}
+
+		public static Rectangle RectFToRect(RectangleF input) {
+			return new Rectangle((int)input.X, (int)input.Y, (int)input.Width, (int)input.Height);
 		}
 	}
 

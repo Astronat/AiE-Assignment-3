@@ -36,7 +36,7 @@ namespace Assignment_3 {
 			//Starting chunk
 			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
 
-			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 500));
+			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 50));
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -161,13 +161,35 @@ namespace Assignment_3 {
 			} //else //Else just continue to update the scroll position
 				XPosition += ScrollSpeed;
 
-			var col = new Collisions {Left = false, Right = false, Down = false};
+			var col = new Collisions {Left = false, Right = false, Down = false, Floor = 500};
+			var lastChunk = Util.RectFToRect(GroundChunks[0]);
 
-			foreach (var c in GroundChunks) {
-				var chunk = new Rectangle((int)(c.X - XPosition), (int)(c.Y - LineWidth), (int)c.Width, 500);
+			for (var i = 0; i < GroundChunks.Count; i++) {
+				var c = GroundChunks[i];
+				var chunk = new Rectangle((int)(c.X - XPosition), (int)(c.Y - LineWidth / 2), (int)c.Width, 500);
+
 				if (PlayerOne.BottomBox.Intersects(chunk)) {
 					col.Down = true;
+					col.Floor = chunk.Y;
 				}
+
+				if (PlayerOne.LeftBox.Intersects(lastChunk)) {
+					col.Left = true;
+					col.LeftSide = lastChunk.Right + 1;
+				}
+				
+				if (i < GroundChunks.Count - 1) {
+					var cNext = new Rectangle((int)(GroundChunks[i+1].X - XPosition - (LineWidth /2f)), (int)(GroundChunks[i+1].Y - LineWidth / 2), (int)GroundChunks[i+1].Width, 500);
+
+					if (PlayerOne.RightBox.Intersects(cNext)) {
+						col.Right = true;
+						col.RightSide = cNext.Left - 56;
+					}
+				}
+
+				Console.WriteLine(col.Right);
+
+				lastChunk = new Rectangle((int)(chunk.X + (LineWidth / 2)), chunk.Y, (int)(chunk.Width + (LineWidth / 2)), chunk.Height);
 			}
 
 			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
