@@ -30,8 +30,11 @@ namespace Assignment_3 {
 		}
 
 		public void Update(KeyboardState ks, KeyboardState? prevState, float stageSpeed, Collisions collisions) {
-			Position.X -= stageSpeed;
+			//Keep the player moving with the world while grounded
+			if (collisions.Down)
+				Position.X -= stageSpeed;
 
+			//Left and right movement
 			if (ks.IsKeyDown(Keys.Left) && !collisions.Left) {
 				Position.X -= MovementSpeed;
 			}
@@ -39,35 +42,40 @@ namespace Assignment_3 {
 				Position.X += MovementSpeed;
 			}
 
+			//Make sure the player can't just run off screen
 			if (Position.X < 0) Position.X = 0;
 			if (Position.X + PlayerSize.Width > Game1.GameBounds.Width)
 				Position.X = Game1.GameBounds.Width - PlayerSize.Width;
 
+			//Ground collision and jumping
 			if (collisions.Down) {
 				Jumping = false;
 
+				//Jump upon pressing X
 				if (ks.IsKeyDown(Keys.X) && !Jumping) {
 					VertMomentum = -12f;
 					Jumping = true;
 				}
 			}
 
+			//Keep vertical momentum updated
 			if (VertMomentum < 12f)
 				VertMomentum += 0.5f;
-
 			Position.Y += VertMomentum;
 			
+			//Make sure the player can't fall through the floor
 			if (Position.Y + PlayerSize.Height > collisions.Floor)
 				Position.Y = collisions.Floor - PlayerSize.Height;
 
+			//TODO: Shooting
 			//if (ks.IsKeyDown(Keys.Z)) { } //Shoot?
 		}
 
 		public void Draw(SpriteBatch sb) { sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen); 
-			/* Debug hitbox drawing /**/
+			/* Debug hitbox drawing 
 			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);
 			sb.Draw(Game1.OnePxWhite, LeftBox, Color.Red);
-			sb.Draw(Game1.OnePxWhite, RightBox, Color.Red);
+			sb.Draw(Game1.OnePxWhite, RightBox, Color.Red);*/
 		}
 
 		//Hitbox rectangles

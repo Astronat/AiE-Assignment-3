@@ -19,13 +19,6 @@ namespace Assignment_3 {
 
 		public Player PlayerOne;
 
-		//Used to move the first Chunk in the Chunk List to the left and off the screen
-		//The idea is that XPosition is the negative position of the first chunk
-		//and every chunk following is just "stuck" to the end of the first chunk
-		//hence, as the first chunk goes completely off screen, Xposition is reset
-		//and the first chunk is removed, making the second chunk become the leading chunk
-		//again.
-		//Could be simpler. Chunk movement handling should probably be rewritten.
 		public float ScrollSpeed = 2f;
 		public float XPosition = 0f; 
 
@@ -149,49 +142,49 @@ namespace Assignment_3 {
 			AmmoPickups.RemoveAll(item => !item.Alive);
 			Enemies.RemoveAll(item => !item.Alive);
 			
-			//The above 2 ammo-related chunks are separate as when they were both in
-			//a for-loop, for some reason it was doing strange double-dips into their 
-			//Update()s on occasion (!?) and basically randomly skipping pickups
-			//forwards a few pixels.
-
-			//If the first chunk in the array is completely off screen, remove it and reset the scroll position
+			//If the first chunk in the array is completely off screen, remove it
 			if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {
-				//XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 4f);
 				GroundChunks.RemoveAt(0);
-			} //else //Else just continue to update the scroll position
-				XPosition += ScrollSpeed;
+			} 
+			
+			//Update world position
+			XPosition += ScrollSpeed;
 
+			//Player + world collisions
 			var col = new Collisions {Left = false, Right = false, Down = false, Floor = 500};
 			var lastChunk = Util.RectFToRect(GroundChunks[0]);
 
+			//Iterate through each chunk
 			for (var i = 0; i < GroundChunks.Count; i++) {
-				var c = GroundChunks[i];
-				var chunk = new Rectangle((int)(c.X - XPosition), (int)(c.Y - LineWidth / 2), (int)c.Width, 500);
+				//The current chunk, slightly changed for collision purposes
+				var chunk = new Rectangle((int)(GroundChunks[i].X - XPosition), (int)(GroundChunks[i].Y - LineWidth / 2), (int)GroundChunks[i].Width, 500);
 
+				
 				if (PlayerOne.BottomBox.Intersects(chunk)) {
-					col.Down = true;
-					col.Floor = chunk.Y;
+					col.Down = true; col.Floor = chunk.Y;
 				}
 
+				//Test player left side collision
 				if (PlayerOne.LeftBox.Intersects(lastChunk)) {
-					col.Left = true;
-					col.LeftSide = lastChunk.Right + 1;
+					col.Left = true; col.LeftSide = lastChunk.Right + 1;
 				}
 				
+				//Test player right side collision
 				if (i < GroundChunks.Count - 1) {
+					//The next chunk in the world
 					var cNext = new Rectangle((int)(GroundChunks[i+1].X - XPosition - (LineWidth /2f)), (int)(GroundChunks[i+1].Y - LineWidth / 2), (int)GroundChunks[i+1].Width, 500);
 
+					//Actual collision check
 					if (PlayerOne.RightBox.Intersects(cNext)) {
-						col.Right = true;
-						col.RightSide = cNext.Left - 56;
+						col.Right = true; col.RightSide = cNext.Left - 56;
 					}
 				}
 
-				Console.WriteLine(col.Right);
-
+				//Reset the previous chunk
 				lastChunk = new Rectangle((int)(chunk.X + (LineWidth / 2)), chunk.Y, (int)(chunk.Width + (LineWidth / 2)), chunk.Height);
 			}
 
+			//Update the player
 			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}
 
