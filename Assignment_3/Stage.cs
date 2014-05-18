@@ -23,6 +23,7 @@ namespace Assignment_3 {
 		public float XPosition = 0f; 
 
 		private float deathWallIntesity = 0.5f;
+
 		private bool deathWallGrowing = false;
 
 		public Stage() {
@@ -117,7 +118,7 @@ namespace Assignment_3 {
 							                new Vector2(
 								                Game1.GameBounds.Width + LineWidth +
 								                (float) ((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size)*Game1.GameRand.NextDouble()),
-								                Game1.GameBounds.Height - rndHeight - 60)));
+								                Game1.GameBounds.Height - rndHeight - 30)));
 					}
 						//Same as above, but for enemies
 					else if (spawnChance > 0.5) {
@@ -135,7 +136,14 @@ namespace Assignment_3 {
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
 			//Update each object
-			foreach (var a in AmmoPickups) a.Update(ScrollSpeed);
+			foreach (var a in AmmoPickups) {
+				a.Update(ScrollSpeed);
+
+				if (a.HitBox.Intersects(PlayerOne.HitBox)) {
+					a.Alive = false;
+					PlayerOne.AmmoCount += 1;
+				}
+			}
 			foreach (var e in Enemies) e.Update(ScrollSpeed, new Vector2(0, 0)); /*TODO: Replace placeholder Vector with player location*/
 
 			//Remove all dead objects

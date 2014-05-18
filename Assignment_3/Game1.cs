@@ -65,7 +65,7 @@ namespace Assignment_3 {
 		protected override void Update(GameTime gameTime) {
 			if (lastFrameState == null)
 				lastFrameState = Keyboard.GetState();
-
+			
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 

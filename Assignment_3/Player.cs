@@ -15,6 +15,13 @@ namespace Assignment_3 {
 		public float MovementSpeed = 5.0f;
 		public float VertMomentum = 5f;
 
+		private int ammoCount = 5;
+		public int AmmoCount { 
+			get { return ammoCount; } 
+			set { ammoCount = value < MaxAmmo ? value : MaxAmmo; }
+		}
+		public const int MaxAmmo = 5;
+
 		public bool Alive = true;
 		public bool Jumping = false;
 
@@ -31,7 +38,7 @@ namespace Assignment_3 {
 
 		public void Update(KeyboardState ks, KeyboardState? prevState, float stageSpeed, Collisions collisions) {
 			//Keep the player moving with the world while grounded
-			if (collisions.Down)
+			//if (collisions.Down) //Wait no, make that just whenever
 				Position.X -= stageSpeed;
 
 			//Left and right movement
@@ -61,6 +68,8 @@ namespace Assignment_3 {
 			//Keep vertical momentum updated
 			if (VertMomentum < 12f)
 				VertMomentum += 0.5f;
+			if (collisions.Down && !Jumping)
+				VertMomentum = 0f;
 			Position.Y += VertMomentum;
 			
 			//Make sure the player can't fall through the floor
