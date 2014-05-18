@@ -8,9 +8,6 @@ using Microsoft.Xna.Framework.Input;
 #endregion
 
 namespace Assignment_3 {
-	/// <summary>
-	/// This is the main type for your game
-	/// </summary>
 	public class Game1 : Game {
 		private readonly GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
