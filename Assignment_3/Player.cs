@@ -10,6 +10,9 @@ using Microsoft.Xna.Framework.Input;
 namespace Assignment_3 {
 	internal class Player {
 		public Vector2 Position;
+		public Vector2 CenterPosition { //Returns the center position of the player's sprite
+			get { return new Vector2(Position.X + (PlayerSize.Width / 2f), Position.Y + (PlayerSize.Height / 2f));}
+		}
 		public static Size PlayerSize = new Size(20, 40);
 
 		public float MovementSpeed = 5.0f;
@@ -18,6 +21,7 @@ namespace Assignment_3 {
 		private int ammoCount = 5;
 		public int AmmoCount { 
 			get { return ammoCount; } 
+			//Don't allow this to be set higher than MaxAmmo for obvious reasons
 			set { ammoCount = value < MaxAmmo ? value : MaxAmmo; }
 		}
 		public const int MaxAmmo = 5;

@@ -34,7 +34,6 @@ namespace Assignment_3 {
 		}
 		
 		public void Draw(SpriteBatch sb) {
-
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
@@ -56,7 +55,7 @@ namespace Assignment_3 {
 				                      (int)t.Height), Color.FromNonPremultiplied(50,50,50,255));
 			}
 
-
+			//Default chunkStart to the X position of the first chunk
 			var chunkStart = GroundChunks[0].X - XPosition;
 
 			//Draw the individual lines that make up the floor
@@ -135,7 +134,7 @@ namespace Assignment_3 {
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
-			//Update each object
+			//Update each Ammo pickup
 			foreach (var a in AmmoPickups) {
 				a.Update(ScrollSpeed);
 
@@ -144,16 +143,16 @@ namespace Assignment_3 {
 					PlayerOne.AmmoCount += 1;
 				}
 			}
-			foreach (var e in Enemies) e.Update(ScrollSpeed, new Vector2(0, 0)); /*TODO: Replace placeholder Vector with player location*/
+
+			//Update enemies
+			foreach (var e in Enemies) e.Update(ScrollSpeed, PlayerOne.CenterPosition);
 
 			//Remove all dead objects
 			AmmoPickups.RemoveAll(item => !item.Alive);
 			Enemies.RemoveAll(item => !item.Alive);
 			
 			//If the first chunk in the array is completely off screen, remove it
-			if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {
-				GroundChunks.RemoveAt(0);
-			} 
+			if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {GroundChunks.RemoveAt(0);} 
 			
 			//Update world position
 			XPosition += ScrollSpeed;
