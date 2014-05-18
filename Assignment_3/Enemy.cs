@@ -11,7 +11,7 @@ namespace Assignment_3 {
 		public Vector2 Position;
 		public Vector2 Crosshair;
 
-		public static Vector2 Size = new Vector2(48, 48);
+		public static Vector2 Size = new Vector2(40, 40);
 
 		public bool Alive = true;
 		
