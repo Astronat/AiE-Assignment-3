@@ -61,16 +61,21 @@ namespace Assignment_3 {
 		/// checking for collisions, gathering input, and playing audio.
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
+		private KeyboardState? lastFrameState = null;
 		protected override void Update(GameTime gameTime) {
+			if (lastFrameState == null)
+				lastFrameState = Keyboard.GetState();
+
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
 			switch (gameState) {
 				case GameState.Game:
-					gameStage.Update(Keyboard.GetState());
+					gameStage.Update(Keyboard.GetState(), lastFrameState);
 					break;
 			}
 
+			lastFrameState = Keyboard.GetState();
 			base.Update(gameTime);
 		}
 

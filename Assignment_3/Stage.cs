@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Assignment_3 {
 	class Stage {
-		public List<Rectangle> GroundChunks = new List<Rectangle>();
+		public List<RectangleF> GroundChunks = new List<RectangleF>();
 
 		public List<Ammo> AmmoPickups = new List<Ammo>();
 		public List<Enemy> Enemies = new List<Enemy>();
@@ -31,13 +34,12 @@ namespace Assignment_3 {
 
 		public Stage() {
 			//Starting chunk
-			GroundChunks.Add(new Rectangle(0, Game1.GameBounds.Height - 80, (int)(Game1.GameBounds.Width * 1.5f), 80));
+			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
 
-			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 3));
+			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 500));
 		}
 		
 		public void Draw(SpriteBatch sb) {
-			var currentStart = XPosition;
 
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
@@ -56,22 +58,21 @@ namespace Assignment_3 {
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
 				sb.Draw(Game1.OnePxWhite,
-						new Rectangle((int)currentStart, Game1.GameBounds.Height - t.Height, t.Width,
-				                      t.Height), Color.FromNonPremultiplied(50,50,50,255));
-				currentStart += t.Width;
+						new Rectangle((int)(t.X - XPosition), (int)(Game1.GameBounds.Height - t.Height), (int)t.Width,
+				                      (int)t.Height), Color.FromNonPremultiplied(50,50,50,255));
 			}
 
-			//Reset the current start position
-			currentStart = XPosition;
+
+			var chunkStart = GroundChunks[0].X - XPosition;
 
 			//Draw the individual lines that make up the floor
-			for (var i = 0; i < GroundChunks.Count; i++ ) {
+			for (var i = 0; i < GroundChunks.Count; i++) {
 				//Draw horizontal lines
-				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - GroundChunks[i].Height),
-						 new Vector2(currentStart + GroundChunks[i].Width, Game1.GameBounds.Height - GroundChunks[i].Height), LineWidth, Color.White);
+				DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - GroundChunks[i].Height),
+						 new Vector2(chunkStart + GroundChunks[i].Width, Game1.GameBounds.Height - GroundChunks[i].Height), LineWidth, Color.White);
 
 				//Add to the current start position before the vertical lines to simplify the below very slightly
-				currentStart += GroundChunks[i].Width;
+				chunkStart += GroundChunks[i].Width;
 
 				//Only continue if a vertical line needs to be drawn
 				if (i >= GroundChunks.Count - 1) continue;
@@ -83,20 +84,20 @@ namespace Assignment_3 {
 				var bottom = Math.Min(GroundChunks[i].Height, GroundChunks[i + 1].Height);
 
 				//Then draw the line
-				DrawLine(sb, new Vector2(currentStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
-				         new Vector2(currentStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
+				DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
+						 new Vector2(chunkStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
 
 			//Draw the player
 			PlayerOne.Draw(sb);
 		}
 
-		public void Update (KeyboardState kState) {
+		public void Update (KeyboardState kState, KeyboardState? prevState) {
 			//The sum of each of the chunks' lengths
-			var totalWidth = GroundChunks.Sum(item => item.Width);
+			var endWidth = GroundChunks[GroundChunks.Count - 1].X + GroundChunks[GroundChunks.Count - 1].Width;
 			
 			//Check if a new chunk is required, generate and add it if it is
-			if (totalWidth - Math.Abs(XPosition) < Game1.GameBounds.Width + LineWidth) {
+			if (endWidth - XPosition < Game1.GameBounds.Width + 8) {
 				//Randomized chunk height and width
 				//TODO: Make the height always be n pixels above or below the last chunk for variance
 
@@ -110,8 +111,8 @@ namespace Assignment_3 {
 
 				//Add a new chunk, if it's a pit make it a good bit lower than the screen
 				GroundChunks.Add(!isPit
-					                 ? new Rectangle(0, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight)
-					                 : new Rectangle(0, Game1.GameBounds.Height + 200, rndWidth, -200));
+									 ? new RectangleF(endWidth, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight)
+									 : new RectangleF(endWidth, Game1.GameBounds.Height + 200, rndWidth, -200));
 
 				var spawnChance = Game1.GameRand.NextDouble();
 
@@ -154,15 +155,22 @@ namespace Assignment_3 {
 			//forwards a few pixels.
 
 			//If the first chunk in the array is completely off screen, remove it and reset the scroll position
-			if (GroundChunks[0].Width <= Math.Abs(XPosition)) {
-				XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 4f);
+			if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {
+				//XPosition = XPosition + GroundChunks[0].Width - (LineWidth / 4f);
 				GroundChunks.RemoveAt(0);
-			} else //Else just continue to update the scroll position
-				XPosition -= ScrollSpeed;
+			} //else //Else just continue to update the scroll position
+				XPosition += ScrollSpeed;
 
-			var ma = new MovementAllowed {Left = true, Right = true, Down = true};
+			var col = new Collisions {Left = false, Right = false, Down = false};
 
-			PlayerOne.Update(kState, ScrollSpeed, ma);
+			foreach (var c in GroundChunks) {
+				var chunk = new Rectangle((int)(c.X - XPosition), (int)(c.Y - LineWidth), (int)c.Width, 500);
+				if (PlayerOne.BottomBox.Intersects(chunk)) {
+					col.Down = true;
+				}
+			}
+
+			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}
 
 		//Effectively draws a white line between two points
