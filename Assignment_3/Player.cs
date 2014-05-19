@@ -28,6 +28,7 @@ namespace Assignment_3 {
 
 		public bool Alive = true;
 		public bool Jumping = false;
+		public bool FacingRight = true;
 
 		public Texture2D PlayerSprite;
 		public void LoadContent(ContentManager content) { 
@@ -48,9 +49,11 @@ namespace Assignment_3 {
 			//Left and right movement
 			if (ks.IsKeyDown(Keys.Left) && !collisions.Left) {
 				Position.X -= MovementSpeed;
+				FacingRight = false;
 			}
 			else if (ks.IsKeyDown(Keys.Right) && !collisions.Right) {
 				Position.X += MovementSpeed;
+				FacingRight = true;
 			}
 
 			//Make sure the player can't just run off screen
@@ -58,6 +61,7 @@ namespace Assignment_3 {
 			if (Position.X + PlayerSize.Width > Game1.GameBounds.Width)
 				Position.X = Game1.GameBounds.Width - PlayerSize.Width;
 
+			//TODO: Make jump height based off time spent holding X instead of a flat value
 			//Ground collision and jumping
 			if (collisions.Down) {
 				Jumping = false;
@@ -79,9 +83,6 @@ namespace Assignment_3 {
 			//Make sure the player can't fall through the floor
 			if (Position.Y + PlayerSize.Height > collisions.Floor)
 				Position.Y = collisions.Floor - PlayerSize.Height;
-
-			//TODO: Shooting
-			//if (ks.IsKeyDown(Keys.Z)) { } //Shoot?
 		}
 
 		public void Draw(SpriteBatch sb) { sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen); 
@@ -92,10 +93,10 @@ namespace Assignment_3 {
 		}
 
 		//Hitbox rectangles
-		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, (int)PlayerSize.Width, (int)PlayerSize.Height); } }
+		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, PlayerSize.Width, PlayerSize.Height); } }
 		public Rectangle BottomBox { get { return new Rectangle((int)(Position.X + 2.5f), (int)Position.Y + PlayerSize.Height, (int)(PlayerSize.Width - 5f), 1); } }
-		public Rectangle LeftBox { get { return new Rectangle((int) Position.X, (int) Position.Y, 1, (int) PlayerSize.Height - 5); } }
-		public Rectangle RightBox { get { return new Rectangle((int)Position.X + (int)PlayerSize.Width, (int)Position.Y, 1, (int)PlayerSize.Height - 5); } }
+		public Rectangle LeftBox { get { return new Rectangle((int) Position.X, (int) Position.Y, 1, PlayerSize.Height - 5); } }
+		public Rectangle RightBox { get { return new Rectangle((int)Position.X + PlayerSize.Width, (int)Position.Y, 1, PlayerSize.Height - 5); } }
 	}
 
 	public struct Collisions {

@@ -71,10 +71,10 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Game:
-					gameStage.Update(Keyboard.GetState(), lastFrameState);
+					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
 					break;
 			}
-
+			
 			lastFrameState = Keyboard.GetState();
 			base.Update(gameTime);
 		}
