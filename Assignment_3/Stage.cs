@@ -154,17 +154,15 @@ namespace Assignment_3 {
 
 			//Update enemies
 			foreach (var e in Enemies) {
-				for (int index = 0; index < Bullets.Bullets.Count; index++) {
-					var b = Bullets.Bullets[index];
+				foreach(var b in Bullets.Bullets) {
 					if (b.HitBox.Intersects(e.HitBox)) {
-						b.Alive = false;
-						e.Alive = false;
+						b.Alive = e.Alive = false;
 					}
 				}
 
 				e.Update(ScrollSpeed, PlayerOne.CenterPosition);
 			}
-
+				
 			//Update bullets
 			Bullets.Update();
 
