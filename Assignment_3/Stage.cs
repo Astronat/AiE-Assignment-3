@@ -141,6 +141,7 @@ namespace Assignment_3 {
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
+
 			//Update each Ammo pickup
 			foreach (var a in AmmoPickups) {
 				a.Update(ScrollSpeed);
@@ -152,7 +153,20 @@ namespace Assignment_3 {
 			}
 
 			//Update enemies
-			foreach (var e in Enemies) e.Update(ScrollSpeed, PlayerOne.CenterPosition);
+			foreach (var e in Enemies) {
+				for (int index = 0; index < Bullets.Bullets.Count; index++) {
+					var b = Bullets.Bullets[index];
+					if (b.HitBox.Intersects(e.HitBox)) {
+						b.Alive = false;
+						e.Alive = false;
+					}
+				}
+
+				e.Update(ScrollSpeed, PlayerOne.CenterPosition);
+			}
+
+			//Update bullets
+			Bullets.Update();
 
 			//Remove all dead objects
 			AmmoPickups.RemoveAll(item => !item.Alive);
@@ -214,9 +228,6 @@ namespace Assignment_3 {
 				//Remove 1 ammo from player
 				PlayerOne.AmmoCount -= 1;
 			}
-
-			//Update bullets
-			Bullets.Update();
 
 			//Update the player
 			PlayerOne.Update(kState, prevState, ScrollSpeed, col);

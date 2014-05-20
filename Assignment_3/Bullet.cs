@@ -47,7 +47,7 @@ namespace Assignment_3 {
 		public void Update() {
 			Position += Direction*Speed;
 
-			Alive = (new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height).Intersects(HitBox));
+			if (Alive) Alive = (new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height).Intersects(HitBox));
 		}
 
 		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, BulletSize.Width, BulletSize.Height); } }

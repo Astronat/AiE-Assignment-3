@@ -41,7 +41,7 @@ namespace Assignment_3 {
 
 		//A hitbox rectangle representing the Enemy
 		public Rectangle HitBox { get {
-			return new Rectangle((int)Position.X, (int)Position.Y-(int)SpriteSize.Height, (int)SpriteSize.Width, (int)SpriteSize.Height);
+			return new Rectangle((int)Position.X, (int)Position.Y-SpriteSize.Height, SpriteSize.Width, SpriteSize.Height);
 		} }
 	}
 }
