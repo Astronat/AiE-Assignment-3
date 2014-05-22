@@ -14,7 +14,7 @@ namespace Assignment_3 {
 		//Updates all bullets and removes dead bullets
 		public void Update() {
 			foreach (var b in Bullets) b.Update();
-
+			
 			Bullets.RemoveAll(item => !item.Alive);
 		}
 		//Creates a new bullet
@@ -29,7 +29,7 @@ namespace Assignment_3 {
 	class Bullet {
 		public Vector2 Position, Direction;
 
-		public static Size BulletSize = new Size(16, 16);
+		public static Size BulletSize = new Size(8,8);
 
 		public static float Speed = 8.0f;
 
@@ -37,7 +37,7 @@ namespace Assignment_3 {
 		public bool Alive = true;
 		
 		public Bullet(Vector2 startPos, Vector2 dir, bool friendly) {
-			Position = startPos;
+			Position = new Vector2(startPos.X - (BulletSize.Width / 2f), startPos.Y - (BulletSize.Height / 2f));
 			Direction = dir;
 			Friendly = friendly;
 			
@@ -49,7 +49,7 @@ namespace Assignment_3 {
 		}
 		public void Update() {
 			Position += Direction*Speed;
-
+			
 			if (Alive) Alive = (new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height).Intersects(HitBox));
 		}
 

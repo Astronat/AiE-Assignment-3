@@ -46,17 +46,21 @@ namespace Assignment_3 {
 		public void Update(KeyboardState ks, KeyboardState? prevState, float stageSpeed, Collisions collisions) {
 			//Keep the player moving with the world while grounded
 			//if (collisions.Down) //Wait no, make that just whenever
-				Position.X -= stageSpeed;
+			Position.X -= stageSpeed;
 
 			Ducking = ks.IsKeyDown(Keys.Down);
 
 			//Left and right movement
-			if (ks.IsKeyDown(Keys.Left) && !collisions.Left && !Ducking) {
-				Position.X -= MovementSpeed;
+			if (ks.IsKeyDown(Keys.Left) && !collisions.Left) {
+				if (!Ducking)
+					Position.X -= MovementSpeed;
+				
 				FacingRight = false;
 			}
-			else if (ks.IsKeyDown(Keys.Right) && !collisions.Right && !Ducking) {
-				Position.X += MovementSpeed;
+			else if (ks.IsKeyDown(Keys.Right) && !collisions.Right) {
+				if (!Ducking)
+					Position.X += MovementSpeed;
+
 				FacingRight = true;
 			}
 
@@ -64,19 +68,23 @@ namespace Assignment_3 {
 			if (Position.X < 0) Position.X = 0;
 			if (Position.X + PlayerSize.Width > Game1.GameBounds.Width)
 				Position.X = Game1.GameBounds.Width - PlayerSize.Width;
-
-			//TODO: Make jump height based off time spent holding X instead of a flat value
+			
 			//Ground collision and jumping
 			if (collisions.Down) {
 				Jumping = false;
 
-				//Jump upon pressing X
+				//start jump upon pressing X
 				if (ks.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X) && !Jumping && !Ducking) {
 					VertMomentum = -12f;
 					Jumping = true;
 				}
 			}
 
+			//Cancel momentum and stop rising if the button is released
+			if (ks.IsKeyUp(Keys.X) && prevState.Value.IsKeyDown(Keys.X) && Jumping && VertMomentum < 0f) {
+				VertMomentum = 0f;
+			}
+			
 			//Keep vertical momentum updated
 			if (VertMomentum < 12f)
 				VertMomentum += 0.5f;

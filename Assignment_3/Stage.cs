@@ -165,7 +165,8 @@ namespace Assignment_3 {
 					}
 				}
 
-				if (e.LastShotMs + 1000 < gTime.TotalGameTime.TotalMilliseconds) {
+				//Fire a bullet once every 2 seconds
+				if (e.LastShotMs + 2000 < gTime.TotalGameTime.TotalMilliseconds) {
 					Bullets.FireBullet(e.CenterPosition + (e.AimDirection * 30), e.AimDirection, false);
 					e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 				}
@@ -230,7 +231,8 @@ namespace Assignment_3 {
 				lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
 				
 				//Fire a bullet
-				Bullets.FireBullet(new Vector2(PlayerOne.CenterPosition.X - (Bullet.BulletSize.Width / 2f), PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height / 2f)), 
+				Bullets.FireBullet(new Vector2(PlayerOne.CenterPosition.X - (Bullet.BulletSize.Width / 2f) + (PlayerOne.FacingRight ? PlayerOne.HitBox.Width / 2 : -(PlayerOne.HitBox.Width / 2)),
+					PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height / 2f) + (PlayerOne.Ducking ? PlayerOne.HitBox.Height / 2 : 0)), 
 					new Vector2(PlayerOne.FacingRight ? 1 : -1, 0), true);
 
 				//Remove 1 ammo from player
