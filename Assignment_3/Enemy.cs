@@ -9,7 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Assignment_3 {
 	internal class Enemy {
 		public Vector2 Position;
+		public Vector2 CenterPosition;
 		public Vector2 Crosshair;
+		public Vector2 AimDirection = new Vector2(-1, 0);
 
 		public static Size SpriteSize = new Size(40, 40);
 
@@ -24,7 +26,18 @@ namespace Assignment_3 {
 		}
 
 		public void Update(float scrollSpeed, Vector2 aimingAt) {
-			//TODO: Update aim direction
+			CenterPosition = new Vector2(Position.X + (SpriteSize.Width / 2f), Position.Y - (SpriteSize.Height / 2f));
+
+			//The direction for the turret "crosshair" to move to keep aiming at the player
+			var crosshairMvDir = Crosshair - aimingAt;
+			crosshairMvDir.Normalize();
+
+			//Move the crosshair towards the player
+			Crosshair = Crosshair - (crosshairMvDir*3);
+
+			//And set the Aim direction for the turret
+			AimDirection = Crosshair-CenterPosition;
+			AimDirection.Normalize();
 
 			//If the enemy has moved off the left side of the screen, proceed to kill it
 			if (Position.X + SpriteSize.Width + 1 < 0) {
@@ -36,7 +49,11 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) {
 			sb.Draw(Game1.OnePxWhite, HitBox, Color.LightCoral);
 
-			/*TODO: Draw turret cannon*/
+			Util.DrawLine(sb, CenterPosition, CenterPosition + (AimDirection * 30), 8f,
+						  Color.Red);
+
+			//Woah debug code; draws a 10x10 coral box at the location of where the turret is currently aiming
+			//sb.Draw(Game1.OnePxWhite, new Rectangle((int)Crosshair.X, (int)Crosshair.Y, 10, 10), Color.LightCoral);
 		}
 
 		//A hitbox rectangle representing the Enemy

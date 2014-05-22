@@ -34,7 +34,7 @@ namespace Assignment_3 {
 			//Starting chunk
 			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
 
-			PlayerOne = new Player(new Vector2(150, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 50));
+			PlayerOne = new Player(new Vector2(Game1.GameBounds.Height / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 50));
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -43,11 +43,11 @@ namespace Assignment_3 {
 			foreach (var e in Enemies) e.Draw(sb);
 
 			//Draw the Ominous Wall of Death
-			DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
+			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
 				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
 			//Draw "pits will kill you" line thingy
-			DrawLine(sb, new Vector2(0, Game1.GameBounds.Height), 
+			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height), 
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
 				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
@@ -65,7 +65,7 @@ namespace Assignment_3 {
 			//Draw the individual lines that make up the floor
 			for (var i = 0; i < GroundChunks.Count; i++) {
 				//Draw horizontal lines
-				DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - GroundChunks[i].Height),
+				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - GroundChunks[i].Height),
 						 new Vector2(chunkStart + GroundChunks[i].Width, Game1.GameBounds.Height - GroundChunks[i].Height), LineWidth, Color.White);
 
 				//Add to the current start position before the vertical lines to simplify the below very slightly
@@ -81,7 +81,7 @@ namespace Assignment_3 {
 				var bottom = Math.Min(GroundChunks[i].Height, GroundChunks[i + 1].Height);
 
 				//Then draw the line
-				DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
+				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
 						 new Vector2(chunkStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
 
@@ -119,7 +119,7 @@ namespace Assignment_3 {
 				//Not a pit, so go ahead and maybe add ammo or an enemy
 				if (!isPit) {
 					//Chance to add an ammo pickup to the new chunk; This may need to be tweaked
-					if (spawnChance > 0.7) {
+					if (spawnChance > 0.6) {
 						AmmoPickups.Add(new Ammo(
 							                new Vector2(
 								                Game1.GameBounds.Width + LineWidth +
@@ -127,7 +127,7 @@ namespace Assignment_3 {
 								                Game1.GameBounds.Height - rndHeight - 30)));
 					}
 						//Same as above, but for enemies
-					else if (spawnChance > 0.5) {
+					else if (spawnChance > 0.3) {
 						Enemies.Add(new Enemy(
 							            new Vector2(
 								            Game1.GameBounds.Width + LineWidth +
@@ -154,8 +154,9 @@ namespace Assignment_3 {
 
 			//Update enemies
 			foreach (var e in Enemies) {
+				//Player bullet/enemy collisions
 				foreach(var b in Bullets.Bullets) {
-					if (b.HitBox.Intersects(e.HitBox)) {
+					if (b.HitBox.Intersects(e.HitBox) && b.Friendly) {
 						b.Alive = e.Alive = false;
 					}
 				}
@@ -231,15 +232,5 @@ namespace Assignment_3 {
 			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}
 
-		//Effectively draws a white line between two points
-		public void DrawLine(SpriteBatch sb, Vector2 a, Vector2 b, float thickness, Color color) {
-			var tan = b - a;
-			var rotation = (float)Math.Atan2(tan.Y, tan.X);
-
-			var middlePoint = new Vector2(0, Game1.OnePxWhite.Height / 2f);
-			var scale = new Vector2(tan.Length(), thickness);
-
-			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
-		}
 	}
 }
