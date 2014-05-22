@@ -40,9 +40,7 @@ namespace Assignment_3 {
 			Position = startPos;
 			Direction = dir;
 			Friendly = friendly;
-
-			Console.WriteLine(dir);
-
+			
 			if (!friendly) Speed = 4f;
 		}
 
