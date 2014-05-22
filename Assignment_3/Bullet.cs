@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -39,6 +40,10 @@ namespace Assignment_3 {
 			Position = startPos;
 			Direction = dir;
 			Friendly = friendly;
+
+			Console.WriteLine(dir);
+
+			if (!friendly) Speed = 4f;
 		}
 
 		public void Draw(SpriteBatch sb) {

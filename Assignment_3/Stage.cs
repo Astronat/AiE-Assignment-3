@@ -99,13 +99,13 @@ namespace Assignment_3 {
 			//Check if a new chunk is required, generate and add it if it is
 			if (endWidth - XPosition < Game1.GameBounds.Width + 8) {
 				//Randomized chunk height and width
-				//TODO: Make the height always be n pixels above or below the last chunk for variance
 
 				//Determine if the current chunk should be a pit chunk
 				var isPit = (Game1.GameRand.NextDouble() > 0.9);
 
 				var rndHeight = Game1.GameRand.Next(70, 160);
-				while (rndHeight < GroundChunks[GroundChunks.Count - 1].Height + 15 && rndHeight > GroundChunks[GroundChunks.Count - 1].Height - 15) {
+				while (rndHeight < GroundChunks[GroundChunks.Count - 1].Height + 15 
+				&& rndHeight > GroundChunks[GroundChunks.Count - 1].Height - 15) {
 					rndHeight = Game1.GameRand.Next(70, 160);
 				}
 
@@ -163,6 +163,11 @@ namespace Assignment_3 {
 					if (b.HitBox.Intersects(e.HitBox) && b.Friendly) {
 						b.Alive = e.Alive = false;
 					}
+				}
+
+				if (e.LastShotMs + 1000 < gTime.TotalGameTime.TotalMilliseconds) {
+					Bullets.FireBullet(e.CenterPosition + (e.AimDirection * 30), e.AimDirection, false);
+					e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 				}
 
 				e.Update(ScrollSpeed, PlayerOne.CenterPosition);
@@ -231,7 +236,7 @@ namespace Assignment_3 {
 				//Remove 1 ammo from player
 				PlayerOne.AmmoCount -= 1;
 			}
-
+			
 			//Update the player
 			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}

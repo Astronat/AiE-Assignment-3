@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
@@ -28,6 +29,7 @@ namespace Assignment_3 {
 
 		public bool Alive = true;
 		public bool Jumping = false;
+		public bool Ducking = false;
 		public bool FacingRight = true;
 
 		public Texture2D PlayerSprite;
@@ -46,12 +48,14 @@ namespace Assignment_3 {
 			//if (collisions.Down) //Wait no, make that just whenever
 				Position.X -= stageSpeed;
 
+			Ducking = ks.IsKeyDown(Keys.Down);
+
 			//Left and right movement
-			if (ks.IsKeyDown(Keys.Left) && !collisions.Left) {
+			if (ks.IsKeyDown(Keys.Left) && !collisions.Left && !Ducking) {
 				Position.X -= MovementSpeed;
 				FacingRight = false;
 			}
-			else if (ks.IsKeyDown(Keys.Right) && !collisions.Right) {
+			else if (ks.IsKeyDown(Keys.Right) && !collisions.Right && !Ducking) {
 				Position.X += MovementSpeed;
 				FacingRight = true;
 			}
@@ -67,7 +71,7 @@ namespace Assignment_3 {
 				Jumping = false;
 
 				//Jump upon pressing X
-				if (ks.IsKeyDown(Keys.X) && !Jumping) {
+				if (ks.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X) && !Jumping && !Ducking) {
 					VertMomentum = -12f;
 					Jumping = true;
 				}
@@ -93,7 +97,9 @@ namespace Assignment_3 {
 		}
 
 		//Hitbox rectangles
-		public Rectangle HitBox { get { return new Rectangle((int)Position.X, (int)Position.Y, PlayerSize.Width, PlayerSize.Height); } }
+		public Rectangle HitBox { get {
+			return new Rectangle((int)Position.X, (int)Position.Y + (Ducking ? PlayerSize.Height / 2 : 0), PlayerSize.Width, PlayerSize.Height / (Ducking ? 2 : 1));
+		} }
 		public Rectangle BottomBox { get { return new Rectangle((int)(Position.X + 2.5f), (int)Position.Y + PlayerSize.Height, (int)(PlayerSize.Width - 5f), 1); } }
 		public Rectangle LeftBox { get { return new Rectangle((int) Position.X, (int) Position.Y, 1, PlayerSize.Height - 5); } }
 		public Rectangle RightBox { get { return new Rectangle((int)Position.X + PlayerSize.Width, (int)Position.Y, 1, PlayerSize.Height - 5); } }

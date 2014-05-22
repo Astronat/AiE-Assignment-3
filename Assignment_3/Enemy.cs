@@ -15,6 +15,8 @@ namespace Assignment_3 {
 
 		public static Size SpriteSize = new Size(40, 40);
 
+		public double LastShotMs = 0;
+
 		public bool Alive = true;
 		
 		public Enemy(Vector2 startPos) {
