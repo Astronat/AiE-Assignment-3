@@ -105,6 +105,10 @@ namespace Assignment_3 {
 				var isPit = (Game1.GameRand.NextDouble() > 0.9);
 
 				var rndHeight = Game1.GameRand.Next(70, 160);
+				while (rndHeight < GroundChunks[GroundChunks.Count - 1].Height + 15 && rndHeight > GroundChunks[GroundChunks.Count - 1].Height - 15) {
+					rndHeight = Game1.GameRand.Next(70, 160);
+				}
+
 				//Pit chunks should always be smaller than normal chunks so jumping them is actually possible
 				var rndWidth = (!isPit ? Game1.GameRand.Next(150, Game1.GameBounds.Width/2) 
 										: Game1.GameRand.Next(50, 150));
