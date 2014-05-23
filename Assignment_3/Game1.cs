@@ -18,17 +18,14 @@ namespace Assignment_3 {
 
 		private Stage gameStage;
 
-		private GameState gameState = GameState.Game;
+		private GameState gameState = GameState.Menu;
 
 		public Game1()
 			: base() {
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 		}
-		
-		public void ResetObjects() {
-			gameStage = new Stage();
-		}
+
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -39,7 +36,7 @@ namespace Assignment_3 {
 			graphics.PreferredBackBufferWidth = 1000;
 
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
-			ResetObjects();
+
 			base.Initialize();
 		}
 
@@ -67,11 +64,20 @@ namespace Assignment_3 {
 		protected override void Update(GameTime gameTime) {
 			if (lastFrameState == null)
 				lastFrameState = Keyboard.GetState();
+
+			var currState = Keyboard.GetState();
 			
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
 			switch (gameState) {
+				case GameState.Menu:
+					if (lastFrameState.Value.IsKeyUp(Keys.Enter) && currState.IsKeyDown(Keys.Enter)) {
+						gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
+						gameState = GameState.Game;
+					}
+
+					break;
 				case GameState.Game:
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
 					break;
@@ -88,7 +94,7 @@ namespace Assignment_3 {
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.Black);
 
-			spriteBatch.Begin();
+			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
 			switch (gameState) {
 				case GameState.Game:

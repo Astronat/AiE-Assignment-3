@@ -55,7 +55,7 @@ namespace Assignment_3 {
 						  Color.Red);
 
 			//Woah debug code; draws a 10x10 coral box at the location of where the turret is currently aiming
-			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Crosshair.X, (int)Crosshair.Y, 10, 10), Color.LightCoral);
+			//sb.Draw(Game1.OnePxWhite, new Rectangle((int)Crosshair.X, (int)Crosshair.Y, 10, 10), Color.LightCoral);
 		}
 
 		//A hitbox rectangle representing the Enemy

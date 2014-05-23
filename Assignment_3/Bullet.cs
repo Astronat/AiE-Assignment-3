@@ -32,7 +32,7 @@ namespace Assignment_3 {
 		public static Size BulletSize = new Size(8,8);
 
 		public float Speed = 8.0f;
-		public float negSpeed;
+		private readonly float negSpeed;
 
 		public bool Friendly = false;
 		public bool Alive = true;

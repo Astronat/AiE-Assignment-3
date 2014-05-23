@@ -27,14 +27,18 @@ namespace Assignment_3 {
 		private float deathWallIntesity = 0.5f;
 
 		private double lastShotTime = 0;
+		private readonly double levelStartTime = 0;
 
 		private bool deathWallGrowing = false;
+		private bool levelStart = true;
 
-		public Stage() {
+		public Stage(double startTime) {
 			//Starting chunk
-			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
+			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 2.5f, 80));
 
-			PlayerOne = new Player(new Vector2(Game1.GameBounds.Height / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - 50));
+			PlayerOne = new Player(new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - (LineWidth / 2f)));
+
+			levelStartTime = startTime;
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -93,6 +97,9 @@ namespace Assignment_3 {
 		}
 
 		public void Update (KeyboardState kState, KeyboardState? prevState, GameTime gTime) {
+			if (gTime.TotalGameTime.TotalMilliseconds > levelStartTime + 3000)
+				levelStart = false;
+
 			//The sum of each of the chunks' lengths
 			var endWidth = GroundChunks[GroundChunks.Count - 1].X + GroundChunks[GroundChunks.Count - 1].Width;
 			
@@ -241,7 +248,8 @@ namespace Assignment_3 {
 			}
 			
 			//Update the player
-			PlayerOne.Update(kState, prevState, ScrollSpeed, col);
+			if (!levelStart)
+				PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}
 
 	}
