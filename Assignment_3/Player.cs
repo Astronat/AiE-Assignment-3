@@ -44,6 +44,9 @@ namespace Assignment_3 {
 		}
 
 		public void Update(KeyboardState ks, KeyboardState? prevState, float stageSpeed, Collisions collisions) {
+			//Update player speed
+			MovementSpeed = 3.0f + stageSpeed;
+
 			//Keep the player moving with the world while grounded
 			//if (collisions.Down) //Wait no, make that just whenever
 			Position.X -= stageSpeed;

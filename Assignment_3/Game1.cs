@@ -36,6 +36,8 @@ namespace Assignment_3 {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
+			graphics.PreferredBackBufferWidth = 1000;
+
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 			ResetObjects();
 			base.Initialize();

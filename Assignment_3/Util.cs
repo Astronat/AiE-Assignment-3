@@ -28,7 +28,7 @@ namespace Assignment_3 {
 		}
 
 		//Effectively draws a white line between two points
-		public static  void DrawLine(SpriteBatch sb, Vector2 a, Vector2 b, float thickness, Color color) {
+		public static void DrawLine(SpriteBatch sb, Vector2 a, Vector2 b, float thickness, Color color) {
 			var tan = b - a;
 			var rotation = (float)Math.Atan2(tan.Y, tan.X);
 
