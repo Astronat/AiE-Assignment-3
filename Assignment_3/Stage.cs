@@ -17,6 +17,8 @@ namespace Assignment_3 {
 
 		public BulletFactory Bullets = new BulletFactory();
 
+		private ExplosionFactory exFactory = new ExplosionFactory();
+		
 		public Player PlayerOne;
 
 		private const float LineWidth = 8f;
@@ -32,6 +34,8 @@ namespace Assignment_3 {
 		private bool deathWallGrowing = false;
 		private bool levelStart = true;
 
+		public bool LevelFinished = false;
+
 		public Stage(double startTime) {
 			//Starting chunk
 			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 2.5f, 80));
@@ -45,6 +49,9 @@ namespace Assignment_3 {
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
+
+			//Draw explosions
+			exFactory.Draw(sb);
 
 			//Draw the Ominous Wall of Death
 			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
@@ -93,7 +100,7 @@ namespace Assignment_3 {
 			Bullets.Draw(sb);
 
 			//Draw the player
-			PlayerOne.Draw(sb);
+			if (PlayerOne.Alive) PlayerOne.Draw(sb);
 		}
 
 		public void Update (KeyboardState kState, KeyboardState? prevState, GameTime gTime) {
@@ -152,104 +159,142 @@ namespace Assignment_3 {
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
 
+			if (PlayerOne.Alive) {
+				//Update each Ammo pickup
+				foreach (var a in AmmoPickups) {
+					a.Update(ScrollSpeed);
 
-			//Update each Ammo pickup
-			foreach (var a in AmmoPickups) {
-				a.Update(ScrollSpeed);
-
-				if (a.HitBox.Intersects(PlayerOne.HitBox)) {
-					a.Alive = false;
-					PlayerOne.AmmoCount += 1;
-				}
-			}
-
-			//Update enemies
-			foreach (var e in Enemies) {
-				//Player bullet/enemy collisions
-				foreach(var b in Bullets.Bullets) {
-					if (b.HitBox.Intersects(e.HitBox) && b.Friendly) {
-						b.Alive = e.Alive = false;
+					if (a.HitBox.Intersects(PlayerOne.HitBox)) {
+						a.Alive = false;
+						PlayerOne.AmmoCount += 1;
 					}
 				}
 
-				//Fire a bullet once every 2 seconds
-				if (e.LastShotMs + 2000 < gTime.TotalGameTime.TotalMilliseconds) {
-					//Console.WriteLine(e.AimDirection);
-					Bullets.FireBullet(e.CenterPosition + (e.AimDirection * 30), e.AimDirection, false, ScrollSpeed);
-					e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
-				}
+				//Update enemies
+				foreach (var e in Enemies) {
+					//Player bullet/enemy collisions
+					foreach (var b in Bullets.Bullets) {
+						if (b.HitBox.Intersects(e.HitBox) && b.Friendly) {
+							b.Alive = e.Alive = false;
 
-				e.Update(ScrollSpeed, PlayerOne.CenterPosition);
-			}
-				
-			//Update bullets
-			Bullets.Update();
-
-			//Remove all dead objects
-			AmmoPickups.RemoveAll(item => !item.Alive);
-			Enemies.RemoveAll(item => !item.Alive);
-			
-			//If the first chunk in the array is completely off screen, remove it
-			if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {GroundChunks.RemoveAt(0);} 
-			
-			//Update world position
-			XPosition += ScrollSpeed;
-
-			/*** COLLISIONS ***/
-
-			//Player + world collisions
-			var col = new Collisions {Left = false, Right = false, Down = false, Floor = 500};
-			var lastChunk = Util.RectFToRect(GroundChunks[0]);
-
-			//Iterate through each chunk
-			for (var i = 0; i < GroundChunks.Count; i++) {
-				//The current chunk, slightly changed for collision purposes
-				var chunk = new Rectangle((int)(GroundChunks[i].X - XPosition), (int)(GroundChunks[i].Y - LineWidth / 2), (int)GroundChunks[i].Width, 500);
-				
-				if (PlayerOne.BottomBox.Intersects(chunk)) {
-					col.Down = true; col.Floor = chunk.Y;
-				}
-
-				//Test player left side collision
-				if (PlayerOne.LeftBox.Intersects(lastChunk)) {
-					col.Left = true; col.LeftSide = lastChunk.Right + 1;
-				}
-				
-				//Test player right side collision
-				if (i < GroundChunks.Count - 1) {
-					//The next chunk in the world
-					var cNext = new Rectangle((int)(GroundChunks[i+1].X - XPosition - (LineWidth /2f)), (int)(GroundChunks[i+1].Y - LineWidth / 2), (int)GroundChunks[i+1].Width, 500);
-
-					//Actual collision check
-					if (PlayerOne.RightBox.Intersects(cNext)) {
-						col.Right = true; col.RightSide = cNext.Left - 56;
+							//Explode enemy
+							exFactory.Explode(new Vector2(e.HitBox.X + (e.HitBox.Width/2), e.HitBox.Y + (e.HitBox.Height/2)),
+							                  Color.LightCoral, gTime);
+						}
 					}
+
+					//Fire a bullet once every 2 seconds
+					if (e.LastShotMs + 2000 < gTime.TotalGameTime.TotalMilliseconds) {
+						//Console.WriteLine(e.AimDirection);
+						Bullets.FireBullet(e.CenterPosition + (e.AimDirection*30), e.AimDirection, false, ScrollSpeed);
+						e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
+					}
+
+					e.Update(ScrollSpeed, PlayerOne.CenterPosition);
 				}
 
-				//Reset the previous chunk
-				lastChunk = new Rectangle((int)(chunk.X + (LineWidth / 2)), chunk.Y, (int)(chunk.Width + (LineWidth / 2)), chunk.Height);
+				foreach (var b in Bullets.Bullets.Where(item => !item.Friendly)) {
+					if (!b.HitBox.Intersects(PlayerOne.HitBox)) continue;
 
-				//Remove bullets hitting "terrain"
-				Bullets.Bullets.RemoveAll(item => item.HitBox.Intersects(chunk));
+					b.Alive = false;
+					PlayerOne.Alive = false;
+
+					exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
+				}
+
+				//Update bullets
+				Bullets.Update();
+
+				//Remove all dead objects
+				AmmoPickups.RemoveAll(item => !item.Alive);
+				Enemies.RemoveAll(item => !item.Alive);
+
+				//If the first chunk in the array is completely off screen, remove it
+				if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {
+					GroundChunks.RemoveAt(0);
+				}
+
+				//Update world position
+				XPosition += ScrollSpeed;
+
+				/*** COLLISIONS ***/
+
+				//Player + world collisions
+				var col = new Collisions {Left = false, Right = false, Down = false, Floor = 500};
+				var lastChunk = Util.RectFToRect(GroundChunks[0]);
+
+				//Iterate through each chunk
+				for (var i = 0; i < GroundChunks.Count; i++) {
+					//The current chunk, slightly changed for collision purposes
+					var chunk = new Rectangle((int) (GroundChunks[i].X - XPosition), (int) (GroundChunks[i].Y - LineWidth/2),
+					                          (int) GroundChunks[i].Width, 500);
+
+					if (PlayerOne.BottomBox.Intersects(chunk)) {
+						col.Down = true;
+						col.Floor = chunk.Y;
+					}
+
+					//Test player left side collision
+					if (PlayerOne.LeftBox.Intersects(lastChunk)) {
+						col.Left = true;
+						col.LeftSide = lastChunk.Right + 1;
+					}
+
+					//Test player right side collision
+					if (i < GroundChunks.Count - 1) {
+						//The next chunk in the world
+						var cNext = new Rectangle((int) (GroundChunks[i + 1].X - XPosition - (LineWidth/2f)),
+						                          (int) (GroundChunks[i + 1].Y - LineWidth/2), (int) GroundChunks[i + 1].Width, 500);
+
+						//Actual collision check
+						if (PlayerOne.RightBox.Intersects(cNext)) {
+							col.Right = true;
+							col.RightSide = cNext.Left - 56;
+						}
+					}
+
+					//Reset the previous chunk
+					lastChunk = new Rectangle((int) (chunk.X + (LineWidth/2)), chunk.Y, (int) (chunk.Width + (LineWidth/2)),
+					                          chunk.Height);
+
+					//Remove bullets hitting "terrain"
+					Bullets.Bullets.RemoveAll(item => item.HitBox.Intersects(chunk));
+
+					//Particle collisions and removal
+					foreach (var e in exFactory.Explosions)
+						e.Particles.RemoveAll(part => part.HitBox.Intersects(chunk));
+				}
+
+				//This is outside of player.cs to avoid having to make BulletFactory static and as such avoid some dodgy code
+				if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300 &&
+				    PlayerOne.AmmoCount > 0) {
+					//Reset the shot delay timer
+					lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
+
+					//Fire a bullet
+					Bullets.FireBullet(
+						new Vector2(
+							PlayerOne.CenterPosition.X - (Bullet.BulletSize.Width/2f) +
+							(PlayerOne.FacingRight ? PlayerOne.HitBox.Width/2 : -(PlayerOne.HitBox.Width/2)),
+							PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height/2f) + (PlayerOne.Ducking ? PlayerOne.HitBox.Height/2 : 0)),
+						new Vector2(PlayerOne.FacingRight ? 1 : -1, 0), true, ScrollSpeed);
+
+					//Remove 1 ammo from player
+					PlayerOne.AmmoCount -= 1;
+				}
+
+
+				//Update the player
+				if (!levelStart)
+					PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 			}
 
-			//This is outside of player.cs to avoid having to make BulletFactory static and as such avoid some dodgy code
-			if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300 && PlayerOne.AmmoCount > 0) {
-				//Reset the shot delay timer
-				lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
-				
-				//Fire a bullet
-				Bullets.FireBullet(new Vector2(PlayerOne.CenterPosition.X - (Bullet.BulletSize.Width / 2f) + (PlayerOne.FacingRight ? PlayerOne.HitBox.Width / 2 : -(PlayerOne.HitBox.Width / 2)),
-					PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height / 2f) + (PlayerOne.Ducking ? PlayerOne.HitBox.Height / 2 : 0)), 
-					new Vector2(PlayerOne.FacingRight ? 1 : -1, 0), true, ScrollSpeed);
+			//Update explosions
+			exFactory.Update(gTime, (PlayerOne.Alive ? ScrollSpeed : 0f));
 
-				//Remove 1 ammo from player
-				PlayerOne.AmmoCount -= 1;
+			if (!PlayerOne.Alive && exFactory.NoUpdates) {
+				LevelFinished = true;
 			}
-			
-			//Update the player
-			if (!levelStart)
-				PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 		}
 
 	}
