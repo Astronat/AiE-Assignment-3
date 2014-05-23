@@ -34,7 +34,6 @@ namespace Assignment_3 {
 
 		public Texture2D PlayerSprite;
 		public void LoadContent(ContentManager content) { 
-			//TODO: Player sprite
 			/*PlayerSprite = content.Load<Texture2D>("player");
 			Size = new Vector2(PlayerSprite.Width, PlayerSprite.Height;*/ 
 		}
@@ -100,7 +99,9 @@ namespace Assignment_3 {
 				Position.Y = collisions.Floor - PlayerSize.Height;
 		}
 
-		public void Draw(SpriteBatch sb) { sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen); 
+		public void Draw(SpriteBatch sb) {
+			sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen);
+			sb.Draw(Game1.OnePxWhite, new Rectangle((int)CenterPosition.X - (FacingRight ? 0 : 18), (int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)), 18, Bullet.BulletSize.Height), Color.DarkGreen); 
 			/* Debug hitbox drawing 
 			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);
 			sb.Draw(Game1.OnePxWhite, LeftBox, Color.Red);

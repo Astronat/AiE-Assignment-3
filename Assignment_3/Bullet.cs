@@ -47,7 +47,7 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, HitBox, Color.Red);
+			sb.Draw(Game1.OnePxWhite, HitBox, Friendly ? Color.Green : Color.Red);
 		}
 		public void Update() {
 			Position += (Direction*(Speed + (negSpeed / 2)));

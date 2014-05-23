@@ -23,6 +23,22 @@ namespace Assignment_3 {
 			return Color.FromNonPremultiplied(r, g, b, 255);
 		}
 
+		public static Color SimilarColor (Color inputColor, float maxDifference) {
+			var diff = (int) (maxDifference*255);
+			
+			var r = Limit((int) (inputColor.R + diff*((Game1.GameRand.NextDouble()*2f) - 1.0f)), 0, 255);
+			var g = Limit((int) (inputColor.G + diff*((Game1.GameRand.NextDouble()*2f) - 1.0f)), 0, 255);
+			var b = Limit((int) (inputColor.B + diff*((Game1.GameRand.NextDouble()*2f) - 1.0f)), 0, 255);
+
+			return Color.FromNonPremultiplied(r, g, b, 255);
+		}
+
+		private static int Limit(int input, int min, int max) {
+			if (input > max) return max;
+			else if (input < min) return min;
+			else return input;
+		}
+
 		public static Rectangle RectFToRect(RectangleF input) {
 			return new Rectangle((int)input.X, (int)input.Y, (int)input.Width, (int)input.Height);
 		}

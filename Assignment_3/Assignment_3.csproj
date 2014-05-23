@@ -38,6 +38,7 @@
     <Compile Include="Ammo.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="Enemy.cs" />
+    <Compile Include="Explosions.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />

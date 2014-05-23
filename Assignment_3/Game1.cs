@@ -18,6 +18,8 @@ namespace Assignment_3 {
 
 		private Stage gameStage;
 
+		public ExplosionFactory testFactory = new ExplosionFactory();
+
 		private GameState gameState = GameState.Menu;
 
 		public Game1()
@@ -61,9 +63,15 @@ namespace Assignment_3 {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		private KeyboardState? lastFrameState = null;
+		private MouseState? LMState = null;
 		protected override void Update(GameTime gameTime) {
 			if (lastFrameState == null)
 				lastFrameState = Keyboard.GetState();
+
+			if (LMState == null) LMState = Mouse.GetState();
+
+			if (Mouse.GetState().LeftButton == ButtonState.Pressed && LMState.Value.LeftButton == ButtonState.Released)
+				testFactory.Explode(new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.Red, gameTime);
 
 			var currState = Keyboard.GetState();
 			
@@ -82,7 +90,9 @@ namespace Assignment_3 {
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
 					break;
 			}
-			
+
+			testFactory.Update(gameTime);
+
 			lastFrameState = Keyboard.GetState();
 			base.Update(gameTime);
 		}
@@ -97,10 +107,14 @@ namespace Assignment_3 {
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
 			switch (gameState) {
+				case GameState.Menu:
+					break;
 				case GameState.Game:
 					gameStage.Draw(spriteBatch);
 					break;
 			}
+
+			testFactory.Draw(spriteBatch);
 
 			spriteBatch.End();
 
