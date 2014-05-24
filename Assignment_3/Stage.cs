@@ -17,14 +17,16 @@ namespace Assignment_3 {
 
 		public BulletFactory Bullets = new BulletFactory();
 
-		private ExplosionFactory exFactory = new ExplosionFactory();
+		private readonly ExplosionFactory exFactory = new ExplosionFactory();
 		
 		public Player PlayerOne;
 
 		private const float LineWidth = 8f;
 
-		public float ScrollSpeed = 5f;
-		public float XPosition = 0f; 
+		public float ScrollSpeed = 2f;
+		public float XPosition = 0f;
+
+		public long Score = 0;
 
 		private float deathWallIntesity = 0.5f;
 
@@ -38,7 +40,7 @@ namespace Assignment_3 {
 
 		public Stage(double startTime) {
 			//Starting chunk
-			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 2.5f, 80));
+			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
 
 			PlayerOne = new Player(new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - (LineWidth / 2f)));
 
@@ -256,13 +258,22 @@ namespace Assignment_3 {
 					//Reset the previous chunk
 					lastChunk = new Rectangle((int) (chunk.X + (LineWidth/2)), chunk.Y, (int) (chunk.Width + (LineWidth/2)),
 					                          chunk.Height);
-
-					//Remove bullets hitting "terrain"
-					Bullets.Bullets.RemoveAll(item => item.HitBox.Intersects(chunk));
-
+					
 					//Particle collisions and removal
 					foreach (var e in exFactory.Explosions)
 						e.Particles.RemoveAll(part => part.HitBox.Intersects(chunk));
+
+					//Remove bullets hitting "terrain"
+					foreach (var b in Bullets.Bullets.Where(item => item.HitBox.Intersects(chunk))) {
+						exFactory.Explode(b.Position, (b.Friendly ? Color.Green : Color.Red), gTime, 100, 300);
+						b.Alive = false;
+					}
+
+					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0,(int) (LineWidth/2f), Game1.GameBounds.Height)) 
+					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
+						PlayerOne.Alive = false;
+						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
+					}
 				}
 
 				//This is outside of player.cs to avoid having to make BulletFactory static and as such avoid some dodgy code
@@ -282,16 +293,23 @@ namespace Assignment_3 {
 					//Remove 1 ammo from player
 					PlayerOne.AmmoCount -= 1;
 				}
-
-
+				
 				//Update the player
 				if (!levelStart)
 					PlayerOne.Update(kState, prevState, ScrollSpeed, col);
 			}
 
+			//Increase level speed and score
+			if (!levelStart && PlayerOne.Alive) {
+				ScrollSpeed += 0.0004f;
+				Score += (int) ScrollSpeed;
+			}
+
 			//Update explosions
 			exFactory.Update(gTime, (PlayerOne.Alive ? ScrollSpeed : 0f));
 
+			//Consider level finished once the player is dead and no explosions need updating
+			//The idea being once the player dies, everything stops and they explode
 			if (!PlayerOne.Alive && exFactory.NoUpdates) {
 				LevelFinished = true;
 			}

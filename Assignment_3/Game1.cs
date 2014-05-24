@@ -83,7 +83,6 @@ namespace Assignment_3 {
 					break;
 			}
 
-
 			lastFrameState = Keyboard.GetState();
 			base.Update(gameTime);
 		}
