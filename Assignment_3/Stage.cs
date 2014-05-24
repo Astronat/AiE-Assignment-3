@@ -192,9 +192,16 @@ namespace Assignment_3 {
 						e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 					}
 
+					//Player/enemy hit detection
+					if (e.HitBox.Intersects(PlayerOne.HitBox)) {
+						PlayerOne.Alive = false;
+						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
+					}
+
 					e.Update(ScrollSpeed, PlayerOne.CenterPosition);
 				}
 
+				//Player/enemy bullet collisions
 				foreach (var b in Bullets.Bullets.Where(item => !item.Friendly)) {
 					if (!b.HitBox.Intersects(PlayerOne.HitBox)) continue;
 
@@ -269,6 +276,7 @@ namespace Assignment_3 {
 						b.Alive = false;
 					}
 
+					//Death wall and pit death detection
 					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0,(int) (LineWidth/2f), Game1.GameBounds.Height)) 
 					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
 						PlayerOne.Alive = false;
