@@ -26,7 +26,9 @@ namespace Assignment_3 {
 		//Menu variables
 		private float glowIntesity = 0.5f;
 		private bool glowGrowing = false;
-		private bool startSelected = true;
+		private int menuSelected = 0;
+
+		private ExplosionFactory eFactory;
 
 		public Game1()
 			: base() {
@@ -46,6 +48,7 @@ namespace Assignment_3 {
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 			ScreenCenter = new Vector2(GameBounds.Width / 2f, GameBounds.Height / 2f);
 
+			eFactory = new ExplosionFactory();
 			
 			base.Initialize();
 		}
@@ -92,21 +95,39 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
-					if (glowIntesity >= 0.9f || glowIntesity <= 0.1f) glowGrowing = !glowGrowing;
-					glowIntesity = glowIntesity + (glowGrowing ? 0.025f : -0.025f);
-
-					if (lastFrameState.Value.IsKeyUp(Keys.Enter) && currState.IsKeyDown(Keys.Enter)) {
-						if (startSelected) {
-							gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
-							gameState = GameState.Game;
+					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
+						switch (menuSelected) {
+							case 0:
+								gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
+								gameState = GameState.Game;
+								break;
+							case 1:
+								gameState = GameState.HighScores;
+								break;
+							default:
+								Exit();
+								break;
 						}
-						else Exit();
 					}
 
-					if ((lastFrameState.Value.IsKeyUp(Keys.Up) && currState.IsKeyDown(Keys.Up)) 
-					|| (lastFrameState.Value.IsKeyUp(Keys.Down) && currState.IsKeyDown(Keys.Down))) {
-						startSelected = !startSelected;
+					if (lastFrameState.Value.IsKeyUp(Keys.Up) && currState.IsKeyDown(Keys.Up)) {
+						if (menuSelected > 0)
+							menuSelected--;
+						else
+							menuSelected = 2;
 					}
+					if (lastFrameState.Value.IsKeyUp(Keys.Down) && currState.IsKeyDown(Keys.Down)) {
+						if (menuSelected < 2)
+							menuSelected++;
+						else
+							menuSelected = 0;
+					}
+
+					//Cause a bunch of explosions every 2 seconds or so
+					if (gameTime.TotalGameTime.TotalMilliseconds % 2000 < 200)
+						eFactory.Explode(new Vector2(GameRand.Next(0, GameBounds.Width), GameRand.Next(0, GameBounds.Height)), Color.LightGreen, gameTime, 400, 2000, 50, 150);
+
+					eFactory.Update(gameTime, 0f);
 					break;
 				case GameState.Game:
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
@@ -115,6 +136,15 @@ namespace Assignment_3 {
 					}
 					break;
 				case GameState.HighScores:
+					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
+						gameState = GameState.Menu;
+					}
+
+					//Cause a bunch of explosions every 2 seconds or so
+					if (gameTime.TotalGameTime.TotalMilliseconds % 2000 < 200)
+						eFactory.Explode(new Vector2(GameRand.Next(0, GameBounds.Width), GameRand.Next(0, GameBounds.Height)), Color.LightGreen, gameTime, 400, 2000, 50, 150);
+
+					eFactory.Update(gameTime, 0f);
 					break;
 			}
 
@@ -133,25 +163,56 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
-					var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, glowIntesity);
+					eFactory.Draw(spriteBatch);
 
-					Util.DrawFontMultiLine(spriteBatch, "game name", new Vector2(graphics.PreferredBackBufferWidth / 2f, 30), 
-						glowyCol, graphics.PreferredBackBufferWidth, 80f, StringAlignment.Center);
+					//Draw transparent black square on entire screen
+					spriteBatch.Draw(OnePxWhite, new Rectangle(0, 0, GameBounds.Width, GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 90));
 
-					Util.DrawFontMultiLine(spriteBatch, "Start Game", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 190),
-						startSelected ? glowyCol : Color.White, graphics.PreferredBackBufferWidth, 32f, StringAlignment.Center);
-					Util.DrawFontMultiLine(spriteBatch, "exit", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 150),
-						!startSelected ? glowyCol : Color.White, graphics.PreferredBackBufferWidth, 32f, StringAlignment.Center);
+					//var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, glowIntesity);
+					var glowyCol = Color.Red;
+
+					Util.DrawFontMultiLine(spriteBatch, "game name", new Vector2(GameBounds.Width / 2f, 30),
+						glowyCol, GameBounds.Width, 80f, StringAlignment.Center);
+
+					Util.DrawFontMultiLine(spriteBatch, "Start Game", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 190),
+						menuSelected == 0 ? glowyCol : Color.White, GameBounds.Width, 32f, StringAlignment.Center);
+
+					Util.DrawFontMultiLine(spriteBatch, "high scores", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 150),
+						menuSelected == 1 ? glowyCol : Color.White, GameBounds.Width, 32f, StringAlignment.Center);
+
+					Util.DrawFontMultiLine(spriteBatch, "exit", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 110),
+						menuSelected == 2 ? glowyCol : Color.White, GameBounds.Width, 32f, StringAlignment.Center);
 
 
-					Util.DrawFontMultiLine(spriteBatch, "z to shoot, x to jump", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 30),
-						Color.White, graphics.PreferredBackBufferWidth, 24f, StringAlignment.Center);
+					Util.DrawFontMultiLine(spriteBatch, "z to shoot, x to jump", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 30),
+						Color.White, GameBounds.Width, 24f, StringAlignment.Center);
 
 					break;
 				case GameState.Game:
 					gameStage.Draw(spriteBatch);
 					break;
 				case GameState.HighScores:
+					eFactory.Draw(spriteBatch);
+
+					//Draw transparent black square on entire screen
+					spriteBatch.Draw(OnePxWhite, new Rectangle(0, 0, GameBounds.Width, GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 90));
+
+					Util.DrawFontMultiLine(spriteBatch, "High Scores", new Vector2(GameBounds.Width / 2f, 10),
+						Color.Red, GameBounds.Width, 60f, StringAlignment.Center);
+
+					for (var i = 0; i < HighScoreList.Count; i++) {
+						var hs = HighScoreList[i];
+
+						var sizePercent = 100f / ((i + 1)*25);
+						Console.WriteLine(sizePercent);
+
+						Util.DrawFontMultiLine(spriteBatch, string.Format("#{0}. {1}  {2}", (i < 9 ? " " : "") + (i+1), hs.Name, hs.Points.ToString().PadLeft(7, ' ')), new Vector2(GameBounds.Width / 2f - 32, 70 + i * 34),
+							Color.White, GameBounds.Width, 32f, StringAlignment.Center);
+					}
+
+					Util.DrawFontMultiLine(spriteBatch, "Press X", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 2),
+						Color.White, GameBounds.Width, 24f, StringAlignment.Center, StringAlignmentVert.Above);
+
 					break;
 			}
 

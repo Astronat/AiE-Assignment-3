@@ -16,6 +16,9 @@ namespace Assignment_3 {
 		public void Explode(Vector2 startPosition, Color color, GameTime gt, int minDecay, int maxDecay) {
 			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, minDecay, maxDecay));
 		}
+		public void Explode(Vector2 startPosition, Color color, GameTime gt, int minDecay, int maxDecay, int minParticles, int maxParticles) {
+			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, minDecay, maxDecay, minParticles, maxParticles));
+		}
 
 		public void Update(GameTime gt, float scrollSpeed) {
 			foreach (var e in Explosions) e.Update(gt, scrollSpeed);
@@ -33,12 +36,12 @@ namespace Assignment_3 {
 		public double CreatedTime;
 		public Color ParticleColor;
 
-		public Explosion(Vector2 position, double created, Color col, int minDecay = 200, int maxDecay = 500) {
+		public Explosion(Vector2 position, double created, Color col, int minDecay = 200, int maxDecay = 500, int minParticles = 5, int maxParticles = 20) {
 			Origin = position;
 			CreatedTime = created;
 
 			//Choose a random amount of particles
-			var partCount = Game1.GameRand.Next(5, 20);
+			var partCount = Game1.GameRand.Next(minParticles, maxParticles);
 
 			//Set each one up
 			for (var i = 0; i < partCount; i++) {
