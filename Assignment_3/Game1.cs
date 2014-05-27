@@ -17,7 +17,8 @@ namespace Assignment_3 {
 		public static Size GameBounds;
 		public static Vector2 ScreenCenter;
 		public static Texture2D GameFont;
-
+		public static List<HighScore> HighScoreList;
+ 
 		private Stage gameStage;
 		
 		private GameState gameState = GameState.Menu;
@@ -45,6 +46,7 @@ namespace Assignment_3 {
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 			ScreenCenter = new Vector2(GameBounds.Width / 2f, GameBounds.Height / 2f);
 
+			
 			base.Initialize();
 		}
 
@@ -60,6 +62,14 @@ namespace Assignment_3 {
 			OnePxWhite.SetData(new[] { Color.White });
 
 			GameFont = Content.Load<Texture2D>("7px3bus");
+			List<HighScore> tmpScores;
+			if (HighScores.DeserializeScores("highscores", out tmpScores)) {
+				HighScoreList = tmpScores;
+			}
+			else {
+				HighScoreList = HighScores.CreateScores();
+				HighScores.SerializeScores("highscores", HighScoreList);
+			}
 
 			Stage.LoadContent(Content);
 		}
@@ -100,6 +110,11 @@ namespace Assignment_3 {
 					break;
 				case GameState.Game:
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
+					if (gameStage.NameEntryFinished) {
+						gameState = GameState.HighScores;
+					}
+					break;
+				case GameState.HighScores:
 					break;
 			}
 
@@ -136,6 +151,8 @@ namespace Assignment_3 {
 				case GameState.Game:
 					gameStage.Draw(spriteBatch);
 					break;
+				case GameState.HighScores:
+					break;
 			}
 
 			spriteBatch.End();
@@ -148,6 +165,6 @@ namespace Assignment_3 {
 	enum GameState {
 		Menu,
 		Game,
-		GameOver
+		HighScores
 	}
 }

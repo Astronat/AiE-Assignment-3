@@ -32,13 +32,19 @@ namespace Assignment_3 {
 		private float deathWallIntesity = 0.5f;
 
 		private double lastShotTime = 0;
+
 		private readonly double levelStartTime = 0;
 
 		private bool deathWallGrowing = false;
 		private bool levelStart = true;
 
 		public bool LevelFinished = false;
+		public bool NameEntryFinished = false;
+		public bool ScoreIsHigh = false;
 
+		private readonly int[] highScoreName = new int[] {0, 0, 0};
+		private int highScoreNameSelected = 0;
+		
 		public Stage(double startTime) {
 			//Starting chunk
 			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
@@ -129,16 +135,42 @@ namespace Assignment_3 {
 
 			//Draw the end screen text
 			if (!PlayerOne.Alive && LevelFinished) {
+				//Draw a semitransparent black box over everything to make the text show up better
 				sb.Draw(Game1.OnePxWhite, new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 128));
 
+				//All non-high score related text
 				Util.DrawFontMultiLine(sb, "You died!", new Vector2(Game1.ScreenCenter.X, 50f), Color.White, Game1.GameBounds.Width,
 									   32f, StringAlignment.Center);
-				Util.DrawFontMultiLine(sb, "However, you made it to", new Vector2(Game1.ScreenCenter.X, 82f), Color.White, Game1.GameBounds.Width,
+				Util.DrawFontMultiLine(sb, "However,you made it to", new Vector2(Game1.ScreenCenter.X, 82f), Color.White, Game1.GameBounds.Width,
 									   32f, StringAlignment.Center);
 				Util.DrawFontMultiLine(sb, Score / 10, new Vector2(Game1.ScreenCenter.X, 114f), Color.White, Game1.GameBounds.Width,
 									   64f, StringAlignment.Center);
 				Util.DrawFontMultiLine(sb, "points!", new Vector2(Game1.ScreenCenter.X, 178f), Color.White, Game1.GameBounds.Width,
 									   32f, StringAlignment.Center);
+
+				//High score related
+				if (ScoreIsHigh) {
+					Util.DrawFontMultiLine(sb, "a new high score!", new Vector2(Game1.ScreenCenter.X, 230f), Color.White,
+					                       Game1.GameBounds.Width,
+					                       32f, StringAlignment.Center);
+					Util.DrawFontMultiLine(sb, "input name", new Vector2(Game1.ScreenCenter.X, 256f), Color.White,
+					                       Game1.GameBounds.Width,
+					                       32f, StringAlignment.Center);
+
+					//Draw Name selection letter box thingy yeah woo
+					//Lots of magic numbers here; it's mostly just fine-tuned positioning stuff
+					Util.DrawFontMultiLine(sb, HighScores.HighScoreIntArrayToString(highScoreName) + "~",
+					                       new Vector2(Game1.ScreenCenter.X, 310f), Color.White, Game1.GameBounds.Width,
+					                       48f, StringAlignment.Center);
+
+					var boxX = Game1.ScreenCenter.X - 96 + (highScoreNameSelected*48);
+					Util.DrawBox(sb, new Rectangle((int) boxX - 3, 310, 49, 44), 4f,
+					             Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+				} else {
+					Util.DrawFontMultiLine(sb, "Press x to continue",
+										   new Vector2(Game1.ScreenCenter.X, 310f), Color.White, Game1.GameBounds.Width,
+										   48f, StringAlignment.Center);
+				}
 			} 
 		}
 
@@ -358,6 +390,43 @@ namespace Assignment_3 {
 			if (!PlayerOne.Alive && exFactory.NoUpdates) {
 				LevelFinished = true;
 			}
+
+			//Name entry button press stuff
+			if (!PlayerOne.Alive && LevelFinished) {
+				if (Score / 10 > Game1.HighScoreList[9].Points) {
+					ScoreIsHigh = true;
+				}
+
+				if (ScoreIsHigh) {
+					if (kState.IsKeyDown(Keys.Left) && prevState.Value.IsKeyUp(Keys.Left) && highScoreNameSelected > 0) {
+						highScoreNameSelected--;
+					}
+					if (kState.IsKeyDown(Keys.Right) && prevState.Value.IsKeyUp(Keys.Right) && highScoreNameSelected < 3) {
+						highScoreNameSelected++;
+					}
+
+					if (highScoreNameSelected < 3) {
+						if (kState.IsKeyDown(Keys.Up) && prevState.Value.IsKeyUp(Keys.Up) && highScoreName[highScoreNameSelected] < 39) {
+							highScoreName[highScoreNameSelected]++;
+						}
+						if (kState.IsKeyDown(Keys.Down) && prevState.Value.IsKeyUp(Keys.Down) && highScoreName[highScoreNameSelected] > 0) {
+							highScoreName[highScoreNameSelected]--;
+						}
+					}
+
+					if (kState.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X) && highScoreNameSelected == 3) {
+						HighScores.InsertScore(HighScores.HighScoreIntArrayToString(highScoreName), (int)(Score / 10), Game1.HighScoreList);
+						HighScores.SerializeScores("highscores", Game1.HighScoreList);
+
+						NameEntryFinished = true;
+					}
+				}
+				else {
+					if (kState.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X)) {
+						NameEntryFinished = true;
+					}
+				}
+			} 
 		}
 
 	}

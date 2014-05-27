@@ -55,6 +55,27 @@ namespace Assignment_3 {
 			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
 		}
 
+		//Draws a box
+		public static void DrawBox(SpriteBatch sb, Rectangle rect, float lineWidth, Color col) {
+			DrawLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X + rect.Width, rect.Y), lineWidth, col); //Top
+			DrawLine(sb, new Vector2(rect.X, rect.Y + rect.Height), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Bottom
+
+			DrawLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X, rect.Y + rect.Height), lineWidth, col); //Left
+			DrawLine(sb, new Vector2(rect.X + rect.Width, rect.Y), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Right
+		}
+
+		//Draws a polygon out of lines
+		public static void DrawPoly(SpriteBatch sb, float lineWidth, Color col, params Vector2[] points) {
+			if (points.Length <= 1) return;
+
+			for (var i = 0; i < points.Length-1; i++) {
+				var p = points[i];
+				var pP = points[i + 1];
+
+				DrawLine(sb, p, pP, lineWidth, col);
+			}
+		}
+		
 		//Uses the below DrawFont() function to draw multiple lines to the screen
 		public static void DrawFontMultiLine(SpriteBatch sb, object text, Vector2 location, Color color, float maxWidth, float size = 32f,
 			StringAlignment stringAlignment = StringAlignment.Left, StringAlignmentVert stringAlignmentVert = StringAlignmentVert.Below

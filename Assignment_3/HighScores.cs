@@ -7,11 +7,11 @@ namespace Assignment_3 {
 	class HighScores {
 		public static void InsertScore (string name, int points, List<HighScore> scores) {
 			//Insert the score if it fits anywhere
-			if (points > scores[0].Points) scores.Insert(0, new HighScore() { Name = name, Points = points });
+			if (points > scores[0].Points) scores.Insert(0, new HighScore{Name = name, Points = points});
 			else {
 				for (var i = 0; i < scores.Count - 1; i++) {
 					if (points < scores[i].Points && points > scores[i + 1].Points) {
-						scores.Insert(i + 1, new HighScore() {Name = name, Points = points});
+						scores.Insert(i + 1, new HighScore{Name = name, Points = points});
 					}
 				}
 			}
@@ -20,6 +20,34 @@ namespace Assignment_3 {
 			if (scores.Count > 10) {
 				scores.RemoveRange(scores.Count-1, scores.Count - 10);
 			}
+		}
+
+		//Only used in Stage.cs to print the current initals for high score entry
+		public static string HighScoreIntArrayToString(int[] input) {
+			var output = "";
+			foreach (var i in input) {
+				if (i > -1 && i < 26) { //A-Z
+					output += (char)(65 + i);
+				}
+				else if (i > 25 && i < 36) { //Followed by 0-9
+					output += (char)(48 + (i - 26));
+				}
+				else switch (i) {
+					case 36:
+						output += "!";
+						break;
+					case 37:
+						output += ".";
+						break;
+					case 38:
+						output += ",";
+						break;
+					case 39:
+						output += "?";
+						break;
+				}
+			}
+			return output;
 		}
 
 		//Deserialize a high score file
@@ -69,7 +97,7 @@ namespace Assignment_3 {
 	}
 
 	[Serializable]
-	struct HighScore {
+	public struct HighScore {
 		public string Name;
 		public int Points;
 	}
