@@ -35,12 +35,14 @@ namespace Assignment_3 {
 
 		public float ScrollSpeed = 2f;
 		public float XPosition = 0f;
+		
+		private float deathWallIntesity = 0.5f;
 
 		public long Score = 0;
 
-		private float deathWallIntesity = 0.5f;
-
 		private double lastShotTime = 0;
+		private double lastSparkTime = 0;
+		private double sparkdelay = 0;
 
 		private readonly double levelStartTime = 0;
 
@@ -52,6 +54,7 @@ namespace Assignment_3 {
 		public bool ScoreIsHigh = false;
 
 		private readonly int[] highScoreName = {0, 0, 0};
+
 		private int highScoreNameSelected = 0;
 		
 		public Stage(double startTime) {
@@ -79,14 +82,14 @@ namespace Assignment_3 {
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
+			
+			//Draw the Ominous Wall of Death
+			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 8f * ScrollSpeed,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
 			//Draw explosions
 			exFactory.Draw(sb);
-
-			//Draw the Ominous Wall of Death
-			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 16f,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
-
+			
 			//Draw "pits will kill you" line thingy
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height), 
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
@@ -376,9 +379,8 @@ namespace Assignment_3 {
 					}
 
 					//Death wall and pit death detection
-					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0,(int) (LineWidth/2f), Game1.GameBounds.Height))
+					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0, (int)(8f * ScrollSpeed) / 2, Game1.GameBounds.Height))
 					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
-
 						playerExplodeBoop.Play();
 						PlayerOne.Alive = false;
 						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
@@ -405,6 +407,15 @@ namespace Assignment_3 {
 					PlayerOne.AmmoCount -= 1;
 				}
 				
+				//Throw "sparks" off the bottom of the ominous death wall for effect
+				if (lastSparkTime + sparkdelay < gTime.TotalGameTime.TotalMilliseconds) {
+					lastSparkTime = gTime.TotalGameTime.TotalMilliseconds;
+					sparkdelay = Game1.GameRand.Next(20, 200);
+
+					//Shoot particles to the right of the wall
+					exFactory.Explode(new Vector2((float)(((8f * ScrollSpeed) / 2) * Game1.GameRand.NextDouble()), GroundChunks[0].Top - 5f), Color.Red, -2f, gTime, 50, 200, 3, 15);
+				}
+
 				//Update the player
 				if (!levelStart)
 					PlayerOne.Update(kState, prevState, ScrollSpeed, col);

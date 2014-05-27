@@ -11,13 +11,16 @@ namespace Assignment_3 {
 
 		//Basically just add a new Explosion() to the list for updating and drawing
 		public void Explode(Vector2 startPosition, Color color, GameTime gt) {
-			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color));
+			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, null));
 		}
 		public void Explode(Vector2 startPosition, Color color, GameTime gt, int minDecay, int maxDecay) {
-			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, minDecay, maxDecay));
+			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, null, minDecay, maxDecay));
 		}
 		public void Explode(Vector2 startPosition, Color color, GameTime gt, int minDecay, int maxDecay, int minParticles, int maxParticles) {
-			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, minDecay, maxDecay, minParticles, maxParticles));
+			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, null, minDecay, maxDecay, minParticles, maxParticles));
+		}
+		public void Explode(Vector2 startPosition, Color color, float scrollSpeedOverride, GameTime gt, int minDecay, int maxDecay, int minParticles, int maxParticles) {
+			Explosions.Add(new Explosion(startPosition, gt.TotalGameTime.TotalMilliseconds, color, scrollSpeedOverride, minDecay, maxDecay, minParticles, maxParticles));
 		}
 
 		public void Update(GameTime gt, float scrollSpeed) {
@@ -35,10 +38,13 @@ namespace Assignment_3 {
 		public List<Particle> Particles = new List<Particle>();
 		public double CreatedTime;
 		public Color ParticleColor;
+		private readonly float? scrollSpeedOverride;
 
-		public Explosion(Vector2 position, double created, Color col, int minDecay = 200, int maxDecay = 500, int minParticles = 5, int maxParticles = 20) {
+		public Explosion(Vector2 position, double created, Color col, float? scrollSpeedOr, int minDecay = 200, int maxDecay = 500, int minParticles = 5, int maxParticles = 20) {
 			Origin = position;
 			CreatedTime = created;
+
+			scrollSpeedOverride = scrollSpeedOr;
 
 			//Choose a random amount of particles
 			var partCount = Game1.GameRand.Next(minParticles, maxParticles);
@@ -64,7 +70,7 @@ namespace Assignment_3 {
 			foreach (var p in Particles) p.Draw(sb);
 		}
 		public void Update(GameTime gt, float scrollSpeed) {
-			foreach (var p in Particles) p.Update(scrollSpeed);
+			foreach (var p in Particles) p.Update(scrollSpeedOverride ?? scrollSpeed);
 
 			//Remove any particles that have decayed
 			Particles.RemoveAll(item => item.DecayTime + CreatedTime < gt.TotalGameTime.TotalMilliseconds);
