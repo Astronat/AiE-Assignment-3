@@ -15,10 +15,17 @@ namespace Assignment_3 {
 		public static Random GameRand = new Random();
 		public static Texture2D OnePxWhite;
 		public static Size GameBounds;
+		public static Vector2 ScreenCenter;
+		public static Texture2D GameFont;
 
 		private Stage gameStage;
 		
 		private GameState gameState = GameState.Menu;
+
+		//Menu variables
+		private float glowIntesity = 0.5f;
+		private bool glowGrowing = false;
+		private bool startSelected = true;
 
 		public Game1()
 			: base() {
@@ -36,6 +43,7 @@ namespace Assignment_3 {
 			graphics.PreferredBackBufferWidth = 1000;
 
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+			ScreenCenter = new Vector2(GameBounds.Width / 2f, GameBounds.Height / 2f);
 
 			base.Initialize();
 		}
@@ -51,7 +59,9 @@ namespace Assignment_3 {
 			OnePxWhite = new Texture2D(new GraphicsDevice(), 1, 1);
 			OnePxWhite.SetData(new[] { Color.White });
 
-			//Stage.LoadContent();
+			GameFont = Content.Load<Texture2D>("7px3bus");
+
+			Stage.LoadContent(Content);
 		}
 		protected override void UnloadContent() {}
 
@@ -72,11 +82,21 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
+					if (glowIntesity >= 0.9f || glowIntesity <= 0.1f) glowGrowing = !glowGrowing;
+					glowIntesity = glowIntesity + (glowGrowing ? 0.025f : -0.025f);
+
 					if (lastFrameState.Value.IsKeyUp(Keys.Enter) && currState.IsKeyDown(Keys.Enter)) {
-						gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
-						gameState = GameState.Game;
+						if (startSelected) {
+							gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
+							gameState = GameState.Game;
+						}
+						else Exit();
 					}
 
+					if ((lastFrameState.Value.IsKeyUp(Keys.Up) && currState.IsKeyDown(Keys.Up)) 
+					|| (lastFrameState.Value.IsKeyUp(Keys.Down) && currState.IsKeyDown(Keys.Down))) {
+						startSelected = !startSelected;
+					}
 					break;
 				case GameState.Game:
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
@@ -98,6 +118,20 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
+					var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, glowIntesity);
+
+					Util.DrawFontMultiLine(spriteBatch, "game name", new Vector2(graphics.PreferredBackBufferWidth / 2f, 30), 
+						glowyCol, graphics.PreferredBackBufferWidth, 80f, StringAlignment.Center);
+
+					Util.DrawFontMultiLine(spriteBatch, "Start Game", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 190),
+						startSelected ? glowyCol : Color.White, graphics.PreferredBackBufferWidth, 32f, StringAlignment.Center);
+					Util.DrawFontMultiLine(spriteBatch, "exit", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 150),
+						!startSelected ? glowyCol : Color.White, graphics.PreferredBackBufferWidth, 32f, StringAlignment.Center);
+
+
+					Util.DrawFontMultiLine(spriteBatch, "z to shoot, x to jump", new Vector2(graphics.PreferredBackBufferWidth / 2f, graphics.PreferredBackBufferHeight - 30),
+						Color.White, graphics.PreferredBackBufferWidth, 24f, StringAlignment.Center);
+
 					break;
 				case GameState.Game:
 					gameStage.Draw(spriteBatch);

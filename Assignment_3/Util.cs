@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,7 +54,104 @@ namespace Assignment_3 {
 
 			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
 		}
+
+		//Uses the below DrawFont() function to draw multiple lines to the screen
+		public static void DrawFontMultiLine(SpriteBatch sb, object text, Vector2 location, Color color, float maxWidth, float size = 32f,
+			StringAlignment stringAlignment = StringAlignment.Left, StringAlignmentVert stringAlignmentVert = StringAlignmentVert.Below
+		) {
+			var maxLineChars = (int)(maxWidth / size);
+			var rows = new List<string>();
+			var splitWords = text.ToString().Split(new[] { ' ' });
+			var currentLine = "";
+			var negOffset = 0f;
+
+			//Goes through each of the words in the string and adds them to the rows list
+			//to split the words into rows that fit into MaxWidth
+			foreach (var word in splitWords) {
+				if (currentLine.Length < maxLineChars && (currentLine + " " + word).Length < maxLineChars) {
+					currentLine += " " + word;
+				}
+				else {
+					rows.Add(currentLine.Trim());
+					currentLine = word;
+				}
+			}
+
+			//Add the final row
+			rows.Add(currentLine.Trim());
+
+			//Add offsets for each of the types of vertical string alignment
+			switch (stringAlignmentVert) {
+				case StringAlignmentVert.Above: negOffset = rows.Count * size; break;
+				case StringAlignmentVert.Center: negOffset = (size * rows.Count) / 2; break;
+			}
+
+			//Draw each of the rows
+			for (var i = 0; i < rows.Count; i++) {
+				DrawFont(sb, rows[i],
+					new Vector2(location.X, location.Y - negOffset + (i * size)), color, size, stringAlignment);
+			}
+		}
+
+		//Draws a string to the screen using the specified SpriteBatch
+		public static void DrawFont(SpriteBatch sb, object text, Vector2 location, Color color, float size = 32f, StringAlignment stringAlignment = StringAlignment.Left) {
+			//Convert to a char array of uppercase characters to simplify the below process
+			var inputCharacters = text.ToString().ToUpper().ToCharArray();
+
+			//Sets the distance the string's placement should be moved to the left
+			//based on the stringAlignment parameter - if it's set to align Right, 
+			//move the entire string to the left side of the draw position,
+			//if it's centered, move it half way to the left, otherwise don't do anything
+			//Saves time and magic numbers with setting the position for drawn strings
+			var negOffset = 0f;
+			switch (stringAlignment) {
+				case StringAlignment.Right: negOffset = text.ToString().Length * size; break;
+				case StringAlignment.Center: negOffset = (text.ToString().Length * size) / 2; break;
+			}
+
+			//Iterate through each character
+			for (var i = 0; i < inputCharacters.Length; i++) {
+				int charValue;
+				//Use the ASCII spec to work out what type of character this is
+				//0-9 fall on ASCII 48-57, A-Z are on 65-90, a-z are on 97-122
+				//Due to the ToUpper() above, checking a-z is not required
+				if (inputCharacters[i] > 47 && inputCharacters[i] < 58) //Character is a number
+					charValue = 1 + (inputCharacters[i] - 48);
+				else if (inputCharacters[i] > 64 && inputCharacters[i] < 91) //Capitalized letters
+					charValue = 11 + (inputCharacters[i] - 65);
+				else switch (inputCharacters[i]) {
+					case '!':
+						charValue = 37;
+						break;
+					case '.':
+						charValue = 38;
+						break;
+					case ',':
+						charValue = 39;
+						break;
+					case '?':
+						charValue = 40;
+						break;
+					case '~': //Special character; draws small "end" diagonally, for name input
+						charValue = 41;
+						break;
+					default:
+						charValue = 0;
+						break;
+				}
+
+				//Draw the character to the screen
+				sb.Draw(Game1.GameFont,
+					new Rectangle((int)((location.X - negOffset) + (i * size)), (int)location.Y, (int)size, (int)size),
+					new Rectangle((charValue * 32), 0, 32, 32),
+					color);
+			}
+		}
 	}
+
+	//Enums
+	public enum StringAlignment { Left, Center, Right }
+	public enum StringAlignmentVert { Above, Center, Below }
 
 	public struct Size {
 		public int Width;

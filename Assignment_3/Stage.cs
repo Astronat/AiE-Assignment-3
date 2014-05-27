@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Color = Microsoft.Xna.Framework.Color;
@@ -45,6 +46,10 @@ namespace Assignment_3 {
 			PlayerOne = new Player(new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - (LineWidth / 2f)));
 
 			levelStartTime = startTime;
+		}
+
+		public static void LoadContent(ContentManager content) {
+			Player.LoadContent(content);
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -103,6 +108,38 @@ namespace Assignment_3 {
 
 			//Draw the player
 			if (PlayerOne.Alive) PlayerOne.Draw(sb);
+
+			//Draw the stage start "RUN!" text
+			if (levelStart)
+				Util.DrawFontMultiLine(sb, "run!", new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height / 2f), 
+					Color.Red, Game1.GameBounds.Width, 64f, StringAlignment.Center, StringAlignmentVert.Center );
+			else if (PlayerOne.Alive) { //And if the level has finished uh, starting, draw the entire HUD
+				//Ammo text
+				Util.DrawFont(sb, "Ammo", new Vector2(12, 3), Color.LightGreen);
+				
+				//Ammo icons
+				for (var i = 0; i < PlayerOne.AmmoCount; i++ ) {
+					sb.Draw(Game1.OnePxWhite, new Rectangle(16 + (i * 24), 35, 16, 16), Color.Yellow);
+				}
+				
+				//Score text
+				Util.DrawFont(sb, "Score", new Vector2(Game1.GameBounds.Width - 12, 3), Color.LightGreen, 32, StringAlignment.Right);
+				Util.DrawFont(sb, Score / 10, new Vector2(Game1.GameBounds.Width - 12, 35), Color.White, 32, StringAlignment.Right);
+			}
+
+			//Draw the end screen text
+			if (!PlayerOne.Alive && LevelFinished) {
+				sb.Draw(Game1.OnePxWhite, new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 128));
+
+				Util.DrawFontMultiLine(sb, "You died!", new Vector2(Game1.ScreenCenter.X, 50f), Color.White, Game1.GameBounds.Width,
+									   32f, StringAlignment.Center);
+				Util.DrawFontMultiLine(sb, "However, you made it to", new Vector2(Game1.ScreenCenter.X, 82f), Color.White, Game1.GameBounds.Width,
+									   32f, StringAlignment.Center);
+				Util.DrawFontMultiLine(sb, Score / 10, new Vector2(Game1.ScreenCenter.X, 114f), Color.White, Game1.GameBounds.Width,
+									   64f, StringAlignment.Center);
+				Util.DrawFontMultiLine(sb, "points!", new Vector2(Game1.ScreenCenter.X, 178f), Color.White, Game1.GameBounds.Width,
+									   32f, StringAlignment.Center);
+			} 
 		}
 
 		public void Update (KeyboardState kState, KeyboardState? prevState, GameTime gTime) {
@@ -272,7 +309,7 @@ namespace Assignment_3 {
 
 					//Remove bullets hitting "terrain"
 					foreach (var b in Bullets.Bullets.Where(item => item.HitBox.Intersects(chunk))) {
-						exFactory.Explode(b.Position, (b.Friendly ? Color.Green : Color.Red), gTime, 100, 300);
+						exFactory.Explode(b.Position - (b.Direction * 5), (b.Friendly ? Color.Green : Color.Red), gTime, 100, 300);
 						b.Alive = false;
 					}
 

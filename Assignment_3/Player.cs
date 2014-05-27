@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Assignment_3 {
 	internal class Player {
+		private static Texture2D playerSprite;
+
 		public Vector2 Position;
 		public Vector2 CenterPosition { //Returns the center position of the player's sprite
 			get { return new Vector2(Position.X + (PlayerSize.Width / 2f), Position.Y + (PlayerSize.Height / 2f));}
@@ -33,9 +35,8 @@ namespace Assignment_3 {
 		public bool FacingRight = true;
 
 		public Texture2D PlayerSprite;
-		public void LoadContent(ContentManager content) { 
-			/*PlayerSprite = content.Load<Texture2D>("player");
-			Size = new Vector2(PlayerSprite.Width, PlayerSprite.Height;*/ 
+		public static void LoadContent(ContentManager content) { 
+			//playerSprite = content.Load<Texture2D>("player");
 		}
 
 		public Player(Vector2 startPos) {
@@ -100,7 +101,7 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen);
+			sb.Draw(playerSprite ?? Game1.OnePxWhite, HitBox, Color.LightGreen);
 			sb.Draw(Game1.OnePxWhite, new Rectangle((int)CenterPosition.X - (FacingRight ? 0 : 18), (int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)), 18, Bullet.BulletSize.Height), Color.DarkGreen); 
 			/* Debug hitbox drawing 
 			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);
