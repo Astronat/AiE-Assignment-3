@@ -202,10 +202,7 @@ namespace Assignment_3 {
 
 					for (var i = 0; i < HighScoreList.Count; i++) {
 						var hs = HighScoreList[i];
-
-						var sizePercent = 100f / ((i + 1)*25);
-						Console.WriteLine(sizePercent);
-
+						
 						Util.DrawFontMultiLine(spriteBatch, string.Format("#{0}. {1}  {2}", (i < 9 ? " " : "") + (i+1), hs.Name, hs.Points.ToString().PadLeft(7, ' ')), new Vector2(GameBounds.Width / 2f - 32, 70 + i * 34),
 							Color.White, GameBounds.Width, 32f, StringAlignment.Center);
 					}
