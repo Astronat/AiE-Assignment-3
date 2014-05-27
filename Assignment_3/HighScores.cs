@@ -70,7 +70,7 @@ namespace Assignment_3 {
 			var newScores = new List<HighScore>(10);
 
 			for (var i = 0; i < 10; i++) {
-				var h = new HighScore {Name = ThreeCharRndString(), Points = 10000 - i * 1000};
+				var h = new HighScore {Name = ThreeCharRndString(), Points = 5000 - i * 500};
 				newScores.Add(h);
 			}
 
@@ -88,11 +88,8 @@ namespace Assignment_3 {
 
 		//Return a 3 character long randomized string of letters
 		private static string ThreeCharRndString() {
-			return 
-				"" //Tricky little casting thing to make it a string
-				+ (char)Game1.GameRand.Next(65, 91) 
-				+ (char)Game1.GameRand.Next(65, 91) 
-				+ (char)Game1.GameRand.Next(65, 91);
+			int[] output = {Game1.GameRand.Next(0, 39), Game1.GameRand.Next(0, 39), Game1.GameRand.Next(0, 39)};
+			return HighScoreIntArrayToString(output);
 		}
 	}
 

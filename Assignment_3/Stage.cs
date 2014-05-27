@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -21,6 +22,14 @@ namespace Assignment_3 {
 		private readonly ExplosionFactory exFactory = new ExplosionFactory();
 		
 		public Player PlayerOne;
+
+		private static SoundEffect nameEntryBoop;
+		private static SoundEffect enemyExplodeBoop;
+		private static SoundEffect playerExplodeBoop;
+		private static SoundEffect bulletWallBoop;
+		private static SoundEffect ammoPickupBoop;
+		private static SoundEffect playerFireBoop;
+		private static SoundEffect enemyFireBoop;
 
 		private const float LineWidth = 8f;
 
@@ -42,7 +51,7 @@ namespace Assignment_3 {
 		public bool NameEntryFinished = false;
 		public bool ScoreIsHigh = false;
 
-		private readonly int[] highScoreName = new int[] {0, 0, 0};
+		private readonly int[] highScoreName = {0, 0, 0};
 		private int highScoreNameSelected = 0;
 		
 		public Stage(double startTime) {
@@ -56,6 +65,13 @@ namespace Assignment_3 {
 
 		public static void LoadContent(ContentManager content) {
 			Player.LoadContent(content);
+			nameEntryBoop = content.Load<SoundEffect>("menuselect");
+			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
+			playerExplodeBoop = content.Load<SoundEffect>("playerexplode");
+			bulletWallBoop = content.Load<SoundEffect>("bulletwall");
+			ammoPickupBoop = content.Load<SoundEffect>("ammopickup");
+			playerFireBoop = content.Load<SoundEffect>("playerfire");
+			enemyFireBoop = content.Load<SoundEffect>("enemyfire");
 		}
 		
 		public void Draw(SpriteBatch sb) {
@@ -222,6 +238,7 @@ namespace Assignment_3 {
 								            Game1.GameBounds.Width + LineWidth +
 								            (float) ((GroundChunks[GroundChunks.Count - 1].Width - Enemy.SpriteSize.Width)*Game1.GameRand.NextDouble()),
 								            Game1.GameBounds.Height - rndHeight)));
+						Enemies[Enemies.Count - 1].LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 					}
 				}
 			}
@@ -238,6 +255,7 @@ namespace Assignment_3 {
 					if (a.HitBox.Intersects(PlayerOne.HitBox)) {
 						a.Alive = false;
 						PlayerOne.AmmoCount += 1;
+						ammoPickupBoop.Play();
 					}
 				}
 
@@ -248,21 +266,28 @@ namespace Assignment_3 {
 						if (b.HitBox.Intersects(e.HitBox) && b.Friendly) {
 							b.Alive = e.Alive = false;
 
+							enemyExplodeBoop.Play();
+							
 							//Explode enemy
 							exFactory.Explode(new Vector2(e.HitBox.X + (e.HitBox.Width/2), e.HitBox.Y + (e.HitBox.Height/2)),
 							                  Color.LightCoral, gTime);
 						}
 					}
 
-					//Fire a bullet once every 2 seconds
-					if (e.LastShotMs + 2000 < gTime.TotalGameTime.TotalMilliseconds) {
-						//Console.WriteLine(e.AimDirection);
+					//Fire a bullet once every 2 seconds, minus some so the game doesn't end up getting easier as time passes
+					if (e.LastShotMs + (2000 - (ScrollSpeed * 100)) < gTime.TotalGameTime.TotalMilliseconds
+					&& e.HitBox.Intersects(new Rectangle(0, 0, Game1.GameBounds.Width, Game1.GameBounds.Height))) {
+						enemyFireBoop.Play();
+
 						Bullets.FireBullet(e.CenterPosition + (e.AimDirection*30), e.AimDirection, false, ScrollSpeed);
 						e.LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 					}
 
 					//Player/enemy hit detection
 					if (e.HitBox.Intersects(PlayerOne.HitBox)) {
+						playerExplodeBoop.Play(0.7f, 0, 0);
+						enemyExplodeBoop.Play();
+
 						PlayerOne.Alive = false;
 						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
 					}
@@ -277,6 +302,7 @@ namespace Assignment_3 {
 					b.Alive = false;
 					PlayerOne.Alive = false;
 
+					playerExplodeBoop.Play(0.7f, 0, 0);
 					exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
 				}
 
@@ -341,13 +367,18 @@ namespace Assignment_3 {
 
 					//Remove bullets hitting "terrain"
 					foreach (var b in Bullets.Bullets.Where(item => item.HitBox.Intersects(chunk))) {
+						bulletWallBoop.Play();
+
+						//Cause an explosion effect slightly away from the wall, so the particles aren't immediately destroyed
 						exFactory.Explode(b.Position - (b.Direction * 5), (b.Friendly ? Color.Green : Color.Red), gTime, 100, 300);
 						b.Alive = false;
 					}
 
 					//Death wall and pit death detection
-					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0,(int) (LineWidth/2f), Game1.GameBounds.Height)) 
+					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0,(int) (LineWidth/2f), Game1.GameBounds.Height))
 					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
+
+						playerExplodeBoop.Play();
 						PlayerOne.Alive = false;
 						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
 					}
@@ -358,6 +389,8 @@ namespace Assignment_3 {
 				    PlayerOne.AmmoCount > 0) {
 					//Reset the shot delay timer
 					lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
+					
+					playerFireBoop.Play();
 
 					//Fire a bullet
 					Bullets.FireBullet(
@@ -379,7 +412,7 @@ namespace Assignment_3 {
 			//Increase level speed and score
 			if (!levelStart && PlayerOne.Alive) {
 				ScrollSpeed += 0.0004f;
-				Score += (int) ScrollSpeed;
+				Score += (int)(ScrollSpeed * 1.2);
 			}
 
 			//Update explosions
@@ -406,15 +439,23 @@ namespace Assignment_3 {
 					}
 
 					if (highScoreNameSelected < 3) {
-						if (kState.IsKeyDown(Keys.Up) && prevState.Value.IsKeyUp(Keys.Up) && highScoreName[highScoreNameSelected] < 39) {
-							highScoreName[highScoreNameSelected]++;
+						if (kState.IsKeyDown(Keys.Up) && prevState.Value.IsKeyUp(Keys.Up)) {
+							if (highScoreName[highScoreNameSelected] < 39)
+								highScoreName[highScoreNameSelected]++;
+							else
+								highScoreName[highScoreNameSelected] = 0;
 						}
-						if (kState.IsKeyDown(Keys.Down) && prevState.Value.IsKeyUp(Keys.Down) && highScoreName[highScoreNameSelected] > 0) {
-							highScoreName[highScoreNameSelected]--;
+						if (kState.IsKeyDown(Keys.Down) && prevState.Value.IsKeyUp(Keys.Down)) {
+							if (highScoreName[highScoreNameSelected] > 0)
+								highScoreName[highScoreNameSelected]--;
+							else
+								highScoreName[highScoreNameSelected] = 39;
 						}
 					}
 
 					if (kState.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X) && highScoreNameSelected == 3) {
+						nameEntryBoop.Play();
+
 						HighScores.InsertScore(HighScores.HighScoreIntArrayToString(highScoreName), (int)(Score / 10), Game1.HighScoreList);
 						HighScores.SerializeScores("highscores", Game1.HighScoreList);
 
@@ -423,6 +464,7 @@ namespace Assignment_3 {
 				}
 				else {
 					if (kState.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X)) {
+						nameEntryBoop.Play();
 						NameEntryFinished = true;
 					}
 				}

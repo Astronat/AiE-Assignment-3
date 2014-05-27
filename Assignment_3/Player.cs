@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Assignment_3 {
 	internal class Player {
-		private static Texture2D playerSprite;
+		//private static Texture2D playerSprite;
+
+		private static SoundEffect jumpBoop;
+		private static SoundEffect landBoop;
 
 		public Vector2 Position;
 		public Vector2 CenterPosition { //Returns the center position of the player's sprite
@@ -37,6 +36,8 @@ namespace Assignment_3 {
 		public Texture2D PlayerSprite;
 		public static void LoadContent(ContentManager content) { 
 			//playerSprite = content.Load<Texture2D>("player");
+			jumpBoop = content.Load<SoundEffect>("jump");
+			landBoop = content.Load<SoundEffect>("land");
 		}
 
 		public Player(Vector2 startPos) {
@@ -74,10 +75,12 @@ namespace Assignment_3 {
 			
 			//Ground collision and jumping
 			if (collisions.Down) {
+				if (Jumping) landBoop.Play();
 				Jumping = false;
 
 				//start jump upon pressing X
 				if (ks.IsKeyDown(Keys.X) && prevState.Value.IsKeyUp(Keys.X) && !Jumping && !Ducking) {
+					jumpBoop.Play();
 					VertMomentum = -12f;
 					Jumping = true;
 				}
@@ -101,7 +104,7 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(playerSprite ?? Game1.OnePxWhite, HitBox, Color.LightGreen);
+			sb.Draw(/*playerSprite ?? */Game1.OnePxWhite, HitBox, Color.LightGreen);
 			sb.Draw(Game1.OnePxWhite, new Rectangle((int)CenterPosition.X - (FacingRight ? 0 : 18), (int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)), 18, Bullet.BulletSize.Height), Color.DarkGreen); 
 			/* Debug hitbox drawing 
 			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);

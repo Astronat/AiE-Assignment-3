@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 #endregion
 
 namespace Assignment_3 {
@@ -24,9 +24,9 @@ namespace Assignment_3 {
 		private GameState gameState = GameState.Menu;
 
 		//Menu variables
-		private float glowIntesity = 0.5f;
-		private bool glowGrowing = false;
 		private int menuSelected = 0;
+		private SoundEffect menuBoop;
+		private SoundEffect menuSelect;
 
 		private ExplosionFactory eFactory;
 
@@ -74,15 +74,13 @@ namespace Assignment_3 {
 				HighScores.SerializeScores("highscores", HighScoreList);
 			}
 
+			menuBoop = Content.Load<SoundEffect>("menublip");
+			menuSelect = Content.Load<SoundEffect>("menuselect");
+
 			Stage.LoadContent(Content);
 		}
 		protected override void UnloadContent() {}
 
-		/// <summary>
-		/// Allows the game to run logic such as updating the world,
-		/// checking for collisions, gathering input, and playing audio.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		private KeyboardState? lastFrameState = null;
 		protected override void Update(GameTime gameTime) {
 			if (lastFrameState == null)
@@ -96,6 +94,7 @@ namespace Assignment_3 {
 			switch (gameState) {
 				case GameState.Menu:
 					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
+						menuSelect.Play();
 						switch (menuSelected) {
 							case 0:
 								gameStage = new Stage(gameTime.TotalGameTime.TotalMilliseconds);
@@ -111,12 +110,14 @@ namespace Assignment_3 {
 					}
 
 					if (lastFrameState.Value.IsKeyUp(Keys.Up) && currState.IsKeyDown(Keys.Up)) {
+						menuBoop.Play();
 						if (menuSelected > 0)
 							menuSelected--;
 						else
 							menuSelected = 2;
 					}
 					if (lastFrameState.Value.IsKeyUp(Keys.Down) && currState.IsKeyDown(Keys.Down)) {
+						menuBoop.Play();
 						if (menuSelected < 2)
 							menuSelected++;
 						else
@@ -137,6 +138,7 @@ namespace Assignment_3 {
 					break;
 				case GameState.HighScores:
 					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
+						menuSelect.Play();
 						gameState = GameState.Menu;
 					}
 
@@ -171,7 +173,7 @@ namespace Assignment_3 {
 					//var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, glowIntesity);
 					var glowyCol = Color.Red;
 
-					Util.DrawFontMultiLine(spriteBatch, "game name", new Vector2(GameBounds.Width / 2f, 30),
+					Util.DrawFontMultiLine(spriteBatch, "RUN", new Vector2(GameBounds.Width / 2f, 30),
 						glowyCol, GameBounds.Width, 80f, StringAlignment.Center);
 
 					Util.DrawFontMultiLine(spriteBatch, "Start Game", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 190),

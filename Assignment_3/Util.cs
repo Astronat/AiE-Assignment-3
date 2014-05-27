@@ -36,8 +36,7 @@ namespace Assignment_3 {
 
 		private static int Limit(int input, int min, int max) {
 			if (input > max) return max;
-			else if (input < min) return min;
-			else return input;
+			return input < min ? min : input;
 		}
 
 		public static Rectangle RectFToRect(RectangleF input) {
