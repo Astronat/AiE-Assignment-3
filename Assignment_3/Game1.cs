@@ -25,6 +25,7 @@ namespace Assignment_3 {
 
 		//Menu variables
 		private int menuSelected = 0;
+
 		private SoundEffect menuBoop;
 		private SoundEffect menuSelect;
 
@@ -34,6 +35,7 @@ namespace Assignment_3 {
 			: base() {
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
+			Window.Title = "RUN";
 		}
 
 		/// <summary>

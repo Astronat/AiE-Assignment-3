@@ -65,6 +65,7 @@ namespace Assignment_3 {
 
 		public static void LoadContent(ContentManager content) {
 			Player.LoadContent(content);
+
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
 			playerExplodeBoop = content.Load<SoundEffect>("playerexplode");
