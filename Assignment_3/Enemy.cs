@@ -30,7 +30,7 @@ namespace Assignment_3 {
 			crosshairMvDir.Normalize();
 
 			//Move the crosshair towards the player
-			Crosshair = Crosshair - (crosshairMvDir*scrollSpeed);
+			Crosshair = Crosshair - (crosshairMvDir*(scrollSpeed*1.5f));
 
 			//And set the Aim direction for the turret
 			AimDirection = Crosshair-CenterPosition;

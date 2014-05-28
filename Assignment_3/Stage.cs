@@ -184,8 +184,19 @@ namespace Assignment_3 {
 					                       48f, StringAlignment.Center);
 
 					var boxX = Game1.ScreenCenter.X - 96 + (highScoreNameSelected*48);
+					
 					Util.DrawBox(sb, new Rectangle((int) boxX - 3, 310, 49, 44), 4f,
 					             Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+
+					if (highScoreNameSelected != 3) {
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity),
+						              new Vector2(boxX + 29, 305), new Vector2(boxX + 13, 305), new Vector2(boxX + 21, 295), //Draw the three arrow points
+						              new Vector2(boxX + 29, 305)); //Then go back to the start
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity),
+						              new Vector2(boxX + 29, 359), new Vector2(boxX + 13, 359), new Vector2(boxX + 21, 369),
+						              new Vector2(boxX + 29, 359));
+					}
+
 				} else {
 					Util.DrawFontMultiLine(sb, "Press x to continue",
 										   new Vector2(Game1.ScreenCenter.X, 310f), Color.White, Game1.GameBounds.Width,
@@ -216,7 +227,7 @@ namespace Assignment_3 {
 
 				//Pit chunks should always be smaller than normal chunks so jumping them is actually possible
 				var rndWidth = (!isPit ? Game1.GameRand.Next(150, Game1.GameBounds.Width/2) 
-										: Game1.GameRand.Next(50, 150));
+										: Game1.GameRand.Next(50, 130));
 
 				//Add a new chunk, if it's a pit make it a good bit lower than the screen
 				GroundChunks.Add(!isPit
@@ -423,7 +434,7 @@ namespace Assignment_3 {
 
 			//Increase level speed and score
 			if (!levelStart && PlayerOne.Alive) {
-				ScrollSpeed += 0.0004f;
+				ScrollSpeed += 0.0007f;
 				Score += (int)(ScrollSpeed * 1.2);
 			}
 
