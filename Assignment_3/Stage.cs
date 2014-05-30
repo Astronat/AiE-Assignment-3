@@ -20,11 +20,13 @@ namespace Assignment_3 {
 		public BulletFactory Bullets = new BulletFactory();
 
 		private readonly ExplosionFactory exFactory = new ExplosionFactory();
-		private LavaParticles lParticles = new LavaParticles();
+		private readonly LavaParticles lParticles = new LavaParticles();
 
 		public Player PlayerOne;
 
-		private Background bGround;
+		private readonly Background bGround;
+
+		private static Texture2D levelGlow;
 
 		private static SoundEffect nameEntryBoop;
 		private static SoundEffect enemyExplodeBoop;
@@ -38,8 +40,9 @@ namespace Assignment_3 {
 
 		public float ScrollSpeed = 2f;
 		public float XPosition = 0f;
-		
+
 		private float deathWallIntesity = 0.5f;
+		private float deathFloorIntesity = 0.5f;
 
 		public long Score = 0;
 
@@ -52,6 +55,7 @@ namespace Assignment_3 {
 		private readonly double levelStartTime = 0;
 
 		private bool deathWallGrowing = false;
+		private bool deathFloorGrowing = false;
 		private bool levelStart = true;
 
 		public bool LevelFinished = false;
@@ -76,6 +80,14 @@ namespace Assignment_3 {
 		public static void LoadContent(ContentManager content) {
 			Player.LoadContent(content);
 
+			levelGlow = new Texture2D(new GraphicsDevice(), 1, 255);
+			var glowData = new Color[255];
+			for (var i = 0; i < 255; i++) {
+				glowData[i] = Color.FromNonPremultiplied(255, 255, 255, i);
+			}
+
+			levelGlow.SetData(glowData);
+
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
 			playerExplodeBoop = content.Load<SoundEffect>("playerexplode");
@@ -98,10 +110,13 @@ namespace Assignment_3 {
 								  Color.FromNonPremultiplied(130, 130, 130, 255),
 								  Color.FromNonPremultiplied(80, 80, 80, 255));
 
+			sb.Draw(levelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntesity)));
+
 			//Draw "pits will kill you" line thingy
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height - 30),
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height - 30), 66f,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntesity));
 
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
@@ -113,14 +128,18 @@ namespace Assignment_3 {
 				 * */
 
 				//New 3D hotness
-				if (t.Top < Game1.GameBounds.Height)
-				Util.DrawCube(sb,
-					new Rectangle((int)(t.X - XPosition), (int)(Game1.GameBounds.Height - t.Height), (int)t.Width,
-									  (int)t.Height - 8),
-									  40, 0.2f, -0.5f, 
-									  Color.FromNonPremultiplied(50, 50, 50, 255), 
-									  Color.FromNonPremultiplied(150, 150, 150, 255), 
-									  Color.FromNonPremultiplied(100, 100,100, 255));
+				if (t.Top < Game1.GameBounds.Height) {
+					Util.DrawCube(sb,
+					              new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - t.Height), (int) t.Width,
+					                            (int) t.Height - 8),
+					              40, 0.2f, -0.5f,
+					              Color.FromNonPremultiplied(50, 50, 50, 255),
+					              Color.FromNonPremultiplied(150, 150, 150, 255),
+					              Color.FromNonPremultiplied(100, 100, 100, 255));
+
+					sb.Draw(levelGlow, new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - 50), (int) t.Width,
+					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntesity)));
+				}
 			}
 			
 
@@ -139,7 +158,7 @@ namespace Assignment_3 {
 			//Draw secondary lava line
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height),
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntesity));
 
 			//Draw explosions
 			exFactory.Draw(sb);
@@ -261,7 +280,7 @@ namespace Assignment_3 {
 				//Randomized chunk height and width
 
 				//Determine if the current chunk should be a pit chunk
-				var isPit = (Game1.GameRand.NextDouble() > 0.8);
+				var isPit = (Game1.GameRand.NextDouble() > 0.8 && GroundChunks[GroundChunks.Count - 1].Top < Game1.GameBounds.Height);
 
 				var rndHeight = Game1.GameRand.Next(70, 160);
 				while (rndHeight < GroundChunks[GroundChunks.Count - 1].Height + 15 
@@ -305,6 +324,8 @@ namespace Assignment_3 {
 			//Switches between increasing and decreasing the death wall's intensity, then does so
 			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
 			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
+			if (deathFloorIntesity >= 0.9f || deathFloorIntesity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
+			deathFloorIntesity = deathFloorIntesity + (deathFloorGrowing ? 0.005f : -0.005f);
 
 			if (PlayerOne.Alive) {
 				//Update each Ammo pickup
@@ -437,7 +458,7 @@ namespace Assignment_3 {
 					//Death wall and pit death detection
 					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0, (int)(8f * ScrollSpeed) / 2, Game1.GameBounds.Height))
 					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
-						playerExplodeBoop.Play(0.7f, 0, 0);
+						playerExplodeBoop.Play(0.4f, 0, 0);
 						PlayerOne.Alive = false;
 						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
 					}
