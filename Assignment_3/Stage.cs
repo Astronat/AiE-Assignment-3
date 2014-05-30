@@ -110,6 +110,7 @@ namespace Assignment_3 {
 								  Color.FromNonPremultiplied(130, 130, 130, 255),
 								  Color.FromNonPremultiplied(80, 80, 80, 255));
 
+			//Draw glow on background lava wall thing
 			sb.Draw(levelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
 								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntesity)));
 
@@ -129,6 +130,7 @@ namespace Assignment_3 {
 
 				//New 3D hotness
 				if (t.Top < Game1.GameBounds.Height) {
+					//Draw each level chunk
 					Util.DrawCube(sb,
 					              new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - t.Height), (int) t.Width,
 					                            (int) t.Height - 8),
@@ -137,6 +139,7 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(150, 150, 150, 255),
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
+					//Draw glow on each level chunk
 					sb.Draw(levelGlow, new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - 50), (int) t.Width,
 					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntesity)));
 				}
