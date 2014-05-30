@@ -190,7 +190,7 @@ namespace Assignment_3 {
 
 					Util.DrawFontMultiLine(spriteBatch, "z to shoot, x to jump", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 30),
 						Color.White, GameBounds.Width, 24f, StringAlignment.Center);
-
+					
 					break;
 				case GameState.Game:
 					gameStage.Draw(spriteBatch);

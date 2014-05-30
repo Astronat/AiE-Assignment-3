@@ -23,6 +23,8 @@ namespace Assignment_3 {
 		
 		public Player PlayerOne;
 
+		private Background bGround;
+
 		private static SoundEffect nameEntryBoop;
 		private static SoundEffect enemyExplodeBoop;
 		private static SoundEffect playerExplodeBoop;
@@ -63,6 +65,8 @@ namespace Assignment_3 {
 
 			PlayerOne = new Player(new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - (LineWidth / 2f)));
 
+			bGround = new Background(ScrollSpeed);
+
 			levelStartTime = startTime;
 		}
 
@@ -79,6 +83,9 @@ namespace Assignment_3 {
 		}
 		
 		public void Draw(SpriteBatch sb) {
+			//Draw background
+			bGround.Draw(sb);
+
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
@@ -332,9 +339,10 @@ namespace Assignment_3 {
 				if (GroundChunks[0].X + GroundChunks[0].Width <= XPosition) {
 					GroundChunks.RemoveAt(0);
 				}
-
+				
 				//Update world position
 				XPosition += ScrollSpeed;
+				bGround.Update(ScrollSpeed);
 
 				/*** COLLISIONS ***/
 
