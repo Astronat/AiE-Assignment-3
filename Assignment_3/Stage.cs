@@ -89,6 +89,14 @@ namespace Assignment_3 {
 			//Draw background
 			bGround.Draw(sb);
 
+			//Draw "land" behind lava so it doesn't just drop off into black
+			Util.DrawCube(sb,
+				new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+								  40),
+								  40, 0.2f, -0.3f,
+								  Color.FromNonPremultiplied(30, 30, 30, 255),
+								  Color.FromNonPremultiplied(130, 130, 130, 255),
+								  Color.FromNonPremultiplied(80, 80, 80, 255));
 
 			//Draw "pits will kill you" line thingy
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height - 30),
@@ -115,6 +123,8 @@ namespace Assignment_3 {
 									  Color.FromNonPremultiplied(100, 100,100, 255));
 			}
 			
+
+
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
@@ -251,7 +261,7 @@ namespace Assignment_3 {
 				//Randomized chunk height and width
 
 				//Determine if the current chunk should be a pit chunk
-				var isPit = (Game1.GameRand.NextDouble() > 0.9);
+				var isPit = (Game1.GameRand.NextDouble() > 0.8);
 
 				var rndHeight = Game1.GameRand.Next(70, 160);
 				while (rndHeight < GroundChunks[GroundChunks.Count - 1].Height + 15 
