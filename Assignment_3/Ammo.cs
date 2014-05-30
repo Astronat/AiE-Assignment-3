@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Assignment_3 {
@@ -17,7 +18,10 @@ namespace Assignment_3 {
 
 		//Draws a SizexSize yellow box
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, HitBox, Color.Yellow);
+			//sb.Draw(Game1.OnePxWhite, HitBox, Color.Yellow);
+			
+			Util.DrawCube(sb, HitBox, 8, 0.4f, -0.5f, Color.Yellow, Util.MuteColor(Color.Yellow, 0.2f),
+			              Util.MuteColor(Color.Yellow, 0.4f));
 		}
 
 		public void Update(float speed) {

@@ -20,7 +20,8 @@ namespace Assignment_3 {
 		public BulletFactory Bullets = new BulletFactory();
 
 		private readonly ExplosionFactory exFactory = new ExplosionFactory();
-		
+		private LavaParticles lParticles = new LavaParticles();
+
 		public Player PlayerOne;
 
 		private Background bGround;
@@ -45,6 +46,8 @@ namespace Assignment_3 {
 		private double lastShotTime = 0;
 		private double lastSparkTime = 0;
 		private double sparkdelay = 0;
+		private double lastLavaSparkTime = 0;
+		private double lavaSparkdelay = 0;
 
 		private readonly double levelStartTime = 0;
 
@@ -86,34 +89,57 @@ namespace Assignment_3 {
 			//Draw background
 			bGround.Draw(sb);
 
-			//Draw ammo and enemies
-			foreach (var a in AmmoPickups) a.Draw(sb);
-			foreach (var e in Enemies) e.Draw(sb);
-			
-			//Draw the Ominous Wall of Death
-			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, Game1.GameBounds.Height), 8f * ScrollSpeed,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
-			//Draw explosions
-			exFactory.Draw(sb);
-			
 			//Draw "pits will kill you" line thingy
-			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height), 
-				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
+			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height - 30),
+				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height - 30), 66f,
 				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
 
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
+				/* //Old 2D drawing
 				sb.Draw(Game1.OnePxWhite,
 						new Rectangle((int)(t.X - XPosition), (int)(Game1.GameBounds.Height - t.Height), (int)t.Width,
 				                      (int)t.Height), Color.FromNonPremultiplied(50,50,50,255));
-			}
+				 * */
 
+				//New 3D hotness
+				if (t.Top < Game1.GameBounds.Height)
+				Util.DrawCube(sb,
+					new Rectangle((int)(t.X - XPosition), (int)(Game1.GameBounds.Height - t.Height), (int)t.Width,
+									  (int)t.Height - 8),
+									  40, 0.2f, -0.5f, 
+									  Color.FromNonPremultiplied(50, 50, 50, 255), 
+									  Color.FromNonPremultiplied(150, 150, 150, 255), 
+									  Color.FromNonPremultiplied(100, 100,100, 255));
+			}
+			
+			//Draw ammo and enemies
+			foreach (var a in AmmoPickups) a.Draw(sb);
+			foreach (var e in Enemies) e.Draw(sb);
+
+			//Draw the Ominous Wall of Death
+			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+
+			//Draw sparks
+			lParticles.Draw(sb);
+
+			//Draw secondary lava line
+			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height),
+				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+
+			//Draw explosions
+			exFactory.Draw(sb);
+
+			/* //Old 2D drawing
+			
 			//Default chunkStart to the X position of the first chunk
 			var chunkStart = GroundChunks[0].X - XPosition;
 
-			//Draw the individual lines that make up the floor
+			//Draw the individual lines that make up the floor 
 			for (var i = 0; i < GroundChunks.Count; i++) {
 				//Draw horizontal lines
 				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - GroundChunks[i].Height),
@@ -135,6 +161,7 @@ namespace Assignment_3 {
 				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
 						 new Vector2(chunkStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
 			}
+			*/
 
 			//Draw bullets
 			Bullets.Draw(sb);
@@ -259,7 +286,7 @@ namespace Assignment_3 {
 							            new Vector2(
 								            Game1.GameBounds.Width + LineWidth +
 								            (float) ((GroundChunks[GroundChunks.Count - 1].Width - Enemy.SpriteSize.Width)*Game1.GameRand.NextDouble()),
-								            Game1.GameBounds.Height - rndHeight)));
+								            Game1.GameBounds.Height - rndHeight - 4)));
 						Enemies[Enemies.Count - 1].LastShotMs = gTime.TotalGameTime.TotalMilliseconds;
 					}
 				}
@@ -400,7 +427,7 @@ namespace Assignment_3 {
 					//Death wall and pit death detection
 					if (PlayerOne.HitBox.Intersects(new Rectangle(0, 0, (int)(8f * ScrollSpeed) / 2, Game1.GameBounds.Height))
 					|| PlayerOne.BottomBox.Y > Game1.GameBounds.Height) {
-						playerExplodeBoop.Play();
+						playerExplodeBoop.Play(0.7f, 0, 0);
 						PlayerOne.Alive = false;
 						exFactory.Explode(PlayerOne.CenterPosition, Color.Green, gTime);
 					}
@@ -434,6 +461,15 @@ namespace Assignment_3 {
 					//Shoot particles to the right of the wall
 					exFactory.Explode(new Vector2((float)(((8f * ScrollSpeed) / 2) * Game1.GameRand.NextDouble()), GroundChunks[0].Top - 5f), Color.Red, -2f, gTime, 50, 200, 3, 15);
 				}
+				
+				if (lastLavaSparkTime + lavaSparkdelay < gTime.TotalGameTime.TotalMilliseconds) {
+					lastLavaSparkTime = gTime.TotalGameTime.TotalMilliseconds;
+					lavaSparkdelay = Game1.GameRand.Next(100, 2000);
+
+					lParticles.Spark(new Vector2((float)(Game1.GameBounds.Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - 4), (float)(10f * Game1.GameRand.NextDouble()), (float)(10f * (0.5 - Game1.GameRand.NextDouble())), 5f);
+				}
+
+				lParticles.Update(ScrollSpeed);
 
 				//Update the player
 				if (!levelStart)

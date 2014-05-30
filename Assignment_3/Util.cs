@@ -95,7 +95,6 @@ namespace Assignment_3 {
 		}
 
 		public static void DrawCube(SpriteBatch sb, Rectangle frontRect, int depth, float horiSkew, float vertSkew, Color front, Color top, Color side) {
-			sb.Draw(Game1.OnePxWhite, frontRect, front);
 
 			var depthVertSkew = (int)(Math.Abs(depth * vertSkew));
 			var depthHoriSkew = (int)(Math.Abs(depth * horiSkew));
@@ -133,8 +132,8 @@ namespace Assignment_3 {
 				}
 			}
 
+			sb.Draw(Game1.OnePxWhite, frontRect, front);
 		}
-
 		//Draws a box
 		public static void DrawBox(SpriteBatch sb, Rectangle rect, float lineWidth, Color col) {
 			DrawLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X + rect.Width, rect.Y), lineWidth, col); //Top
