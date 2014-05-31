@@ -31,6 +31,16 @@ namespace Assignment_3 {
 
 		private ExplosionFactory eFactory;
 
+		private readonly LavaParticles lParticles = new LavaParticles();
+
+		private Background bGround = new Background(2.0f);
+
+		private bool deathFloorGrowing = false;
+		private float deathFloorIntensity = 0.5f;
+
+		private double lastLavaSparkTime = 0;
+		private double lavaSparkdelay = 0;
+
 		public Game1()
 			: base() {
 			graphics = new GraphicsDeviceManager(this);
@@ -95,6 +105,20 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
+					bGround.Update(2.0f);
+
+					if (lastLavaSparkTime + lavaSparkdelay < gameTime.TotalGameTime.TotalMilliseconds) {
+						lastLavaSparkTime = gameTime.TotalGameTime.TotalMilliseconds;
+						lavaSparkdelay = GameRand.Next(100, 1500);
+
+						lParticles.Spark(new Vector2((float)(GameBounds.Width * GameRand.NextDouble()), GameBounds.Height - 4), (float)(16f * GameRand.NextDouble()), (float)(10f * (0.5 - GameRand.NextDouble())), 5f);
+					}
+
+					lParticles.Update(0.0f);
+
+					if (deathFloorIntensity >= 0.9f || deathFloorIntensity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
+					deathFloorIntensity = deathFloorIntensity + (deathFloorGrowing ? 0.005f : -0.005f);
+
 					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
 						menuSelect.Play();
 						switch (menuSelected) {
@@ -125,12 +149,6 @@ namespace Assignment_3 {
 						else
 							menuSelected = 0;
 					}
-
-					//Cause a bunch of explosions every 2 seconds or so
-					if (gameTime.TotalGameTime.TotalMilliseconds % 2000 < 200)
-						eFactory.Explode(new Vector2(GameRand.Next(0, GameBounds.Width), GameRand.Next(0, GameBounds.Height)), Color.LightGreen, gameTime, 400, 2000, 50, 150);
-
-					eFactory.Update(gameTime, 0f);
 					break;
 				case GameState.Game:
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
@@ -167,12 +185,39 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
-					eFactory.Draw(spriteBatch);
+					//Draw background
+					bGround.Draw(spriteBatch);
+
+					//Draw background wall
+					Util.DrawCube(spriteBatch,
+						new Rectangle(-50, GameBounds.Height - 80, GameBounds.Width + 50,
+										  40),
+										  40, 0.2f, -0.3f,
+										  Color.FromNonPremultiplied(30, 30, 30, 255),
+										  Color.FromNonPremultiplied(130, 130, 130, 255),
+										  Color.FromNonPremultiplied(80, 80, 80, 255));
+
+					//Draw glow on wall
+					spriteBatch.Draw(Stage.LevelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+										  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntensity)));
+
+					//Draw lava
+					Util.DrawLine(spriteBatch, new Vector2(0, GameBounds.Height - 30),
+						new Vector2(GameBounds.Width, GameBounds.Height - 30), 66f,
+						Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
+					
+					//Draw lava sparks
+					lParticles.Draw(spriteBatch);
+
+					//Draw front lava
+					Util.DrawLine(spriteBatch, new Vector2(0, GameBounds.Height),
+						new Vector2(GameBounds.Width, GameBounds.Height), 24f,
+						Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
 
 					//Draw transparent black square on entire screen
 					spriteBatch.Draw(OnePxWhite, new Rectangle(0, 0, GameBounds.Width, GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 90));
 
-					//var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, glowIntesity);
+					//var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, deathFloorIntensity);
 					var glowyCol = Color.Red;
 
 					Util.DrawFontMultiLine(spriteBatch, "RUN", new Vector2(GameBounds.Width / 2f, 30),

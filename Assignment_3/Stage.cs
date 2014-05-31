@@ -26,8 +26,8 @@ namespace Assignment_3 {
 
 		private readonly Background bGround;
 
-		private static Texture2D levelGlow;
-		public static Texture2D circleGlow;
+		public static Texture2D LevelGlow;
+		public static Texture2D CircleGlow;
 
 		private static SoundEffect nameEntryBoop;
 		private static SoundEffect enemyExplodeBoop;
@@ -82,16 +82,16 @@ namespace Assignment_3 {
 			Player.LoadContent(content);
 
 			//Create glow sprite for the lava
-			levelGlow = new Texture2D(new GraphicsDevice(), 1, 255);
+			LevelGlow = new Texture2D(new GraphicsDevice(), 1, 255);
 			var glowData = new Color[255];
 			for (var i = 0; i < 255; i++) {
 				glowData[i] = Color.FromNonPremultiplied(255, 255, 255, i);
 			}
 
-			levelGlow.SetData(glowData);
+			LevelGlow.SetData(glowData);
 
 			//Create circular gradient texture
-			circleGlow = new Texture2D(new GraphicsDevice(), 255, 255);
+			CircleGlow = new Texture2D(new GraphicsDevice(), 255, 255);
 
 			//Create pixel array
 			glowData = new Color[255 * 255];
@@ -123,7 +123,7 @@ namespace Assignment_3 {
 			}
 
 			//Apply the above pixel array's data to the texture
-			circleGlow.SetData(glowData);
+			CircleGlow.SetData(glowData);
 
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
@@ -148,7 +148,7 @@ namespace Assignment_3 {
 								  Color.FromNonPremultiplied(80, 80, 80, 255));
 
 			//Draw glow on background lava wall thing
-			sb.Draw(levelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+			sb.Draw(LevelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
 								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntensity)));
 
 			//Draw "pits will kill you" line thingy
@@ -180,7 +180,7 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
 					//Draw glow on each level chunk
-					sb.Draw(levelGlow, new Rectangle((int)chunkLeft, Game1.GameBounds.Height - 50, (int)t.Width,
+					sb.Draw(LevelGlow, new Rectangle((int)chunkLeft, Game1.GameBounds.Height - 50, (int)t.Width,
 					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntensity)));
 
 
@@ -189,7 +189,7 @@ namespace Assignment_3 {
 						var playerDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
 						var distFloat = playerDist/100f;
 
-						sb.Draw(circleGlow,
+						sb.Draw(CircleGlow,
 								new Rectangle((int)PlayerOne.Position.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
 											  Player.PlayerSize.Width, 12), Color.FromNonPremultiplied(0, 0, 0, (int)(255 * distFloat)));
 					}

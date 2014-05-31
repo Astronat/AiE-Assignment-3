@@ -56,7 +56,7 @@ namespace Assignment_3 {
 			foreach(var bl in blocks) {
 				bl.BlockRect.X -= scrollSpeed*(float)bl.ScrollDepth;
 			}
-			blocks.RemoveAll(item => item.BlockRect.Right < 0);
+			blocks.RemoveAll(item => item.BlockRect.Right + item.BlockDepth < 0);
 		}
 
 		public void Draw(SpriteBatch sb) {
