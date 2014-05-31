@@ -557,7 +557,7 @@ namespace Assignment_3 {
 				
 				if (lastLavaSparkTime + lavaSparkdelay < gTime.TotalGameTime.TotalMilliseconds) {
 					lastLavaSparkTime = gTime.TotalGameTime.TotalMilliseconds;
-					lavaSparkdelay = Game1.GameRand.Next(100, 2000);
+					lavaSparkdelay = Game1.GameRand.Next(100, 1500);
 
 					lParticles.Spark(new Vector2((float)(Game1.GameBounds.Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - 4), (float)(10f * Game1.GameRand.NextDouble()), (float)(10f * (0.5 - Game1.GameRand.NextDouble())), 5f);
 				}

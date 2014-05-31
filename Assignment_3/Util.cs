@@ -72,55 +72,54 @@ namespace Assignment_3 {
 			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
 		}
 
-		public static void DrawSkewedRectHor(SpriteBatch sb, Rectangle rect, float skew, Color col) {
-			for (var i = rect.Height; i > 0; i--)
-				sb.Draw(Game1.OnePxWhite, new Rectangle((int)(rect.X + ((rect.Height - i) * skew)), rect.Y + i, rect.Width, 1), col);
-		}
-		public static void DrawSkewedRectHor(SpriteBatch sb, Rectangle rect, int skewRightByPix, Color col) {
-			for (var i = rect.Height; i >= 0; i--) {
+		public static void DrawSkewedRectHor(SpriteBatch sb, Rectangle rect, float skewRightByPix, Color col) {
+			for (var i = 0; i < rect.Height; i++) {
+				var skewAmount = Math.Round((Convert.ToDouble(i) / Convert.ToDouble(rect.Height)) * skewRightByPix, MidpointRounding.AwayFromZero);
+
 				sb.Draw(Game1.OnePxWhite,
-					new Rectangle(rect.X + skewRightByPix - (int)(((float)i / (float)rect.Height) * skewRightByPix), 
-						rect.Y + i, rect.Width , 1), col);
+					new Rectangle(rect.X + (int)(skewRightByPix - skewAmount),
+						rect.Y + i, rect.Width, 1), col);
 			}
 		}
-		public static void DrawSkewedRectVert(SpriteBatch sb, Rectangle rect, float skew, Color col) {
-			for (var i = 0; i < rect.Width; i++)
-				sb.Draw(Game1.OnePxWhite, new Rectangle(rect.X + i, (int)(rect.Y + (i * skew)), 1, rect.Height), col);
-		}
-
-		public static void DrawSkewedRectVert(SpriteBatch sb, Rectangle rect, int skewUpByPix, Color col) {
+		public static void DrawSkewedRectVert(SpriteBatch sb, Rectangle rect, float skewUpByPix, Color col) {
 			for (var i = 0; i < rect.Width; i++) {
-				sb.Draw(Game1.OnePxWhite, new Rectangle(rect.X + i, (int)(rect.Y - (((float)i / (float)rect.Width) * skewUpByPix)), 1, rect.Height), col);
+				var skewAmount = Math.Round((Convert.ToDouble(i) / Convert.ToDouble(rect.Width)) * skewUpByPix, MidpointRounding.AwayFromZero);
+
+				sb.Draw(Game1.OnePxWhite, new Rectangle(rect.X + i, rect.Y - (int)skewAmount, 1, rect.Height), col);
 			}
 		}
 
 		public static void DrawCube(SpriteBatch sb, Rectangle frontRect, int depth, float horiSkew, float vertSkew, Color front, Color top, Color side) {
-
-			var depthVertSkew = (int)(Math.Abs(depth * vertSkew));
-			var depthHoriSkew = (int)(Math.Abs(depth * horiSkew));
+			var depthVertSkew = (int)Math.Abs(depth * vertSkew);
+			var depthHoriSkew = (int)Math.Abs(depth * horiSkew);
 
 			//Draw top
 			if (vertSkew < 0f) {
-				DrawSkewedRectHor(sb, new Rectangle(frontRect.X + (horiSkew > 0 ? -1 : 0) , frontRect.Y - depthVertSkew, frontRect.Width, depthVertSkew),
-				                       (int)(depth * horiSkew), top);
+				DrawSkewedRectHor(sb, new Rectangle(frontRect.X, (int)(frontRect.Y - depthVertSkew), frontRect.Width, (int)depthVertSkew),
+				                       depth * horiSkew, top);
+				if (horiSkew > 0f)
+					sb.Draw(Game1.OnePxWhite, new Rectangle(frontRect.Right, frontRect.Top - depthVertSkew, depthHoriSkew, depthVertSkew), top) ;
 			}
 			else { //Draw bottom
-				DrawSkewedRectHor(sb, new Rectangle(frontRect.X + (int)(depth * horiSkew), frontRect.Bottom - 1, frontRect.Width, depthVertSkew),
-									   -(int)(depth * horiSkew), top);
+				DrawSkewedRectHor(sb, new Rectangle((int)(frontRect.X + depth * horiSkew), frontRect.Bottom, frontRect.Width, (int)depthVertSkew),
+									   -(depth * horiSkew), top);
+
+				if (horiSkew > 0f)
+					sb.Draw(Game1.OnePxWhite, new Rectangle(frontRect.Right, frontRect.Bottom, depthHoriSkew, depthVertSkew), top);
 			}
-
-
+			
 			if (horiSkew > 0f) { //Right
 				DrawSkewedRectVert(sb,
-								   new Rectangle(frontRect.Right - 1, frontRect.Y, depthHoriSkew, frontRect.Height),
+								   new Rectangle(frontRect.Right, frontRect.Y, (int)depthHoriSkew, frontRect.Height+1),
 								   (vertSkew > 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 			else { //Left
 				DrawSkewedRectVert(sb,
-								   new Rectangle(frontRect.X - depthHoriSkew, frontRect.Y - (vertSkew > 0f ? -depthVertSkew : depthVertSkew), depthHoriSkew, frontRect.Height),
+								   new Rectangle((int)(frontRect.X - depthHoriSkew), (int)(frontRect.Y - (vertSkew > 0f ? -depthVertSkew : depthVertSkew)), (int)depthHoriSkew, frontRect.Height),
 								   (vertSkew < 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 
+			//sb.Draw(Game1.OnePxWhite, new Rectangle(frontRect.X, frontRect.Y, frontRect.Width + 1, frontRect.Height), front);
 			sb.Draw(Game1.OnePxWhite, frontRect, front);
 		}
 		//Draws a box
