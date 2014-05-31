@@ -20,7 +20,7 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) {
 			//sb.Draw(Game1.OnePxWhite, HitBox, Color.Yellow);
 			
-			Util.DrawCube(sb, HitBox, 8, 0.4f, -0.5f, Color.Yellow, Util.MuteColor(Color.Yellow, 0.2f),
+			Util.DrawCube(sb, HitBox, 8, 0.2f, -0.5f, Color.Yellow, Util.MuteColor(Color.Yellow, 0.2f),
 			              Util.MuteColor(Color.Yellow, 0.4f));
 		}
 

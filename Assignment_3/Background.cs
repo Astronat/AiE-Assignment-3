@@ -62,7 +62,7 @@ namespace Assignment_3 {
 		public void Draw(SpriteBatch sb) {
 			//Draw each block
 			foreach (var bl in blocks) {
-				var topPer = (bl.BlockRect.Top / Game1.GameBounds.Height) - 0.5f;
+				var topPer = (bl.BlockRect.Top / Game1.GameBounds.Height) - 0.3f;
 				var sidePer = ((Game1.GameBounds.Width - bl.BlockRect.X)/Game1.GameBounds.Width) - 0.5f;
 				
 				Util.DrawCube(sb, Util.RectFToRect(bl.BlockRect), bl.BlockDepth, sidePer, -topPer, bl.BlockColor,

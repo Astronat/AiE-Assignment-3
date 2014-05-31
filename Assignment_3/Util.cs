@@ -77,7 +77,7 @@ namespace Assignment_3 {
 				sb.Draw(Game1.OnePxWhite, new Rectangle((int)(rect.X + ((rect.Height - i) * skew)), rect.Y + i, rect.Width, 1), col);
 		}
 		public static void DrawSkewedRectHor(SpriteBatch sb, Rectangle rect, int skewRightByPix, Color col) {
-			for (var i = rect.Height - 1; i > 0; i--) {
+			for (var i = rect.Height; i >= 0; i--) {
 				sb.Draw(Game1.OnePxWhite,
 					new Rectangle(rect.X + skewRightByPix - (int)(((float)i / (float)rect.Height) * skewRightByPix), 
 						rect.Y + i, rect.Width , 1), col);
@@ -103,33 +103,22 @@ namespace Assignment_3 {
 			if (vertSkew < 0f) {
 				DrawSkewedRectHor(sb, new Rectangle(frontRect.X + (horiSkew > 0 ? -1 : 0) , frontRect.Y - depthVertSkew, frontRect.Width, depthVertSkew),
 				                       (int)(depth * horiSkew), top);
-
-				//Off to the right
-				if (horiSkew > 0f) {
-					DrawSkewedRectVert(sb,
-									   new Rectangle(frontRect.Right - 1, frontRect.Y, depthHoriSkew, frontRect.Height),
-									   depthVertSkew, side);
-				}
-				else { //Left
-					DrawSkewedRectVert(sb,
-									   new Rectangle(frontRect.X - depthHoriSkew, frontRect.Y - depthVertSkew + 1, depthHoriSkew, frontRect.Height),
-									   -depthVertSkew, side);
-				}
 			}
 			else { //Draw bottom
 				DrawSkewedRectHor(sb, new Rectangle(frontRect.X + (int)(depth * horiSkew), frontRect.Bottom - 1, frontRect.Width, depthVertSkew),
 									   -(int)(depth * horiSkew), top);
+			}
 
-				if (horiSkew > 0f) { //Right
-					DrawSkewedRectVert(sb,
-									   new Rectangle(frontRect.Right - 1, frontRect.Y, depthHoriSkew, frontRect.Height),
-									   -depthVertSkew, side);
-				}
-				else { //Left
-					DrawSkewedRectVert(sb,
-									   new Rectangle(frontRect.X - depthHoriSkew, frontRect.Y + depthVertSkew, depthHoriSkew, frontRect.Height),
-									   depthVertSkew, side);
-				}
+
+			if (horiSkew > 0f) { //Right
+				DrawSkewedRectVert(sb,
+								   new Rectangle(frontRect.Right - 1, frontRect.Y, depthHoriSkew, frontRect.Height),
+								   (vertSkew > 0f ? -depthVertSkew : depthVertSkew), side);
+			}
+			else { //Left
+				DrawSkewedRectVert(sb,
+								   new Rectangle(frontRect.X - depthHoriSkew, frontRect.Y - (vertSkew > 0f ? -depthVertSkew : depthVertSkew), depthHoriSkew, frontRect.Height),
+								   (vertSkew < 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 
 			sb.Draw(Game1.OnePxWhite, frontRect, front);

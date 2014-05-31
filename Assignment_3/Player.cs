@@ -34,7 +34,7 @@ namespace Assignment_3 {
 		public bool FacingRight = true;
 
 		public Texture2D PlayerSprite;
-		public static void LoadContent(ContentManager content) { 
+		public static void LoadContent(ContentManager content) {
 			//playerSprite = content.Load<Texture2D>("player");
 			jumpBoop = content.Load<SoundEffect>("jump");
 			landBoop = content.Load<SoundEffect>("land");

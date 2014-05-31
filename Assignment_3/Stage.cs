@@ -27,6 +27,7 @@ namespace Assignment_3 {
 		private readonly Background bGround;
 
 		private static Texture2D levelGlow;
+		public static Texture2D circleGlow;
 
 		private static SoundEffect nameEntryBoop;
 		private static SoundEffect enemyExplodeBoop;
@@ -41,8 +42,8 @@ namespace Assignment_3 {
 		public float ScrollSpeed = 2f;
 		public float XPosition = 0f;
 
-		private float deathWallIntesity = 0.5f;
-		private float deathFloorIntesity = 0.5f;
+		private float deathWallIntensity = 0.5f;
+		private float deathFloorIntensity = 0.5f;
 
 		public long Score = 0;
 
@@ -80,6 +81,7 @@ namespace Assignment_3 {
 		public static void LoadContent(ContentManager content) {
 			Player.LoadContent(content);
 
+			//Create glow sprite for the lava
 			levelGlow = new Texture2D(new GraphicsDevice(), 1, 255);
 			var glowData = new Color[255];
 			for (var i = 0; i < 255; i++) {
@@ -87,6 +89,41 @@ namespace Assignment_3 {
 			}
 
 			levelGlow.SetData(glowData);
+
+			//Create circular gradient texture
+			circleGlow = new Texture2D(new GraphicsDevice(), 255, 255);
+
+			//Create pixel array
+			glowData = new Color[255 * 255];
+			//Simply a vector pointing at the middle of the image
+			var centerVect = new Vector2(0.5f, 0.5f);
+			
+			//Iterate through each pixel
+			var rowCount = 0;
+			for (var v = 0; v < 255*255; v++) {
+				//xPosition and 0.0-1.0 representation of it
+				var xP = (float)(v % 255);
+				var x = xP/255f; 
+
+				//Same as above but for the Y axis
+				var yP = (rowCount);
+				var y = yP/255f;
+
+				//Vector pointing to the current pixel
+				var gradVect = new Vector2(x, y);
+
+				//Limited representation of the current pixel's length from the center of the texture
+				var len = Util.Limit((1.0f - (centerVect - gradVect).Length() * 2f), 0.0f, 1f);
+				
+				//Set the pixel's color data
+				glowData[v] = Color.FromNonPremultiplied(255, 255, 255, (int)(len * 100));
+
+				//Increment the row count if required
+				if (v % 255 == 0 && v > 0) rowCount++;
+			}
+
+			//Apply the above pixel array's data to the texture
+			circleGlow.SetData(glowData);
 
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
@@ -112,12 +149,12 @@ namespace Assignment_3 {
 
 			//Draw glow on background lava wall thing
 			sb.Draw(levelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
-								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntesity)));
+								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntensity)));
 
 			//Draw "pits will kill you" line thingy
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height - 30),
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height - 30), 66f,
-				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntesity));
+				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
 
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
@@ -128,11 +165,14 @@ namespace Assignment_3 {
 				                      (int)t.Height), Color.FromNonPremultiplied(50,50,50,255));
 				 * */
 
+				var chunkLeft = t.X - XPosition;
+				var chunkRight = chunkLeft + t.Width;
+
 				//New 3D hotness
-				if (t.Top < Game1.GameBounds.Height) {
+				if (t.Top < Game1.GameBounds.Height) { //Not a pit
 					//Draw each level chunk
 					Util.DrawCube(sb,
-					              new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - t.Height), (int) t.Width,
+					              new Rectangle((int)chunkLeft, (int)(Game1.GameBounds.Height - t.Height), (int) t.Width,
 					                            (int) t.Height - 8),
 					              40, 0.2f, -0.5f,
 					              Color.FromNonPremultiplied(50, 50, 50, 255),
@@ -140,20 +180,38 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
 					//Draw glow on each level chunk
-					sb.Draw(levelGlow, new Rectangle((int) (t.X - XPosition), (int) (Game1.GameBounds.Height - 50), (int) t.Width,
-					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntesity)));
+					sb.Draw(levelGlow, new Rectangle((int)chunkLeft, Game1.GameBounds.Height - 50, (int)t.Width,
+					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntensity)));
+
+
+					//Draw player shadow
+					if (PlayerOne.Position.X > chunkLeft && PlayerOne.Position.X + Player.PlayerSize.Width < chunkRight) {
+						var playerDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
+						var distFloat = playerDist/100f;
+
+						sb.Draw(circleGlow,
+								new Rectangle((int)PlayerOne.Position.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
+											  Player.PlayerSize.Width, 12), Color.FromNonPremultiplied(0, 0, 0, (int)(255 * distFloat)));
+					}
+
+					//Draw ammo shadows
+					foreach (var a in AmmoPickups) {
+						if (a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight) {
+							sb.Draw(Game1.OnePxWhite,
+									new Rectangle((int)a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
+												  a.HitBox.Width, 6), Color.FromNonPremultiplied(0, 0, 0, 130));
+						}
+					}
 				}
 			}
 			
-
-
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb);
 
 			//Draw the Ominous Wall of Death
 			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));
 
 			//Draw sparks
 			lParticles.Draw(sb);
@@ -161,7 +219,7 @@ namespace Assignment_3 {
 			//Draw secondary lava line
 			Util.DrawLine(sb, new Vector2(0, Game1.GameBounds.Height),
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height), 16f,
-				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntesity));
+				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
 
 			//Draw explosions
 			exFactory.Draw(sb);
@@ -252,13 +310,13 @@ namespace Assignment_3 {
 					var boxX = Game1.ScreenCenter.X - 96 + (highScoreNameSelected*48);
 					
 					Util.DrawBox(sb, new Rectangle((int) boxX - 3, 310, 49, 44), 4f,
-					             Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity));
+					             Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));
 
 					if (highScoreNameSelected != 3) {
-						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity),
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
 						              new Vector2(boxX + 29, 305), new Vector2(boxX + 13, 305), new Vector2(boxX + 21, 295), //Draw the three arrow points
 						              new Vector2(boxX + 29, 305)); //Then go back to the start
-						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntesity),
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
 						              new Vector2(boxX + 29, 359), new Vector2(boxX + 13, 359), new Vector2(boxX + 21, 369),
 						              new Vector2(boxX + 29, 359));
 					}
@@ -310,7 +368,7 @@ namespace Assignment_3 {
 							                new Vector2(
 								                Game1.GameBounds.Width + LineWidth +
 								                (float) ((GroundChunks[GroundChunks.Count - 1].Width - Ammo.Size)*Game1.GameRand.NextDouble()),
-								                Game1.GameBounds.Height - rndHeight - 30)));
+								                Game1.GameBounds.Height - rndHeight - 40)));
 					}
 						//Same as above, but for enemies
 					else if (spawnChance > 0.3) {
@@ -325,10 +383,11 @@ namespace Assignment_3 {
 			}
 
 			//Switches between increasing and decreasing the death wall's intensity, then does so
-			if (deathWallIntesity >= 0.9f || deathWallIntesity <= 0.1f) deathWallGrowing = !deathWallGrowing;
-			deathWallIntesity = deathWallIntesity + (deathWallGrowing ? 0.025f : -0.025f);
-			if (deathFloorIntesity >= 0.9f || deathFloorIntesity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
-			deathFloorIntesity = deathFloorIntesity + (deathFloorGrowing ? 0.005f : -0.005f);
+			if (deathWallIntensity >= 0.9f || deathWallIntensity <= 0.1f) deathWallGrowing = !deathWallGrowing;
+			deathWallIntensity = deathWallIntensity + (deathWallGrowing ? 0.025f : -0.025f);
+
+			if (deathFloorIntensity >= 0.9f || deathFloorIntensity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
+			deathFloorIntensity = deathFloorIntensity + (deathFloorGrowing ? 0.005f : -0.005f);
 
 			if (PlayerOne.Alive) {
 				//Update each Ammo pickup
@@ -574,3 +633,4 @@ namespace Assignment_3 {
 
 	}
 }
+

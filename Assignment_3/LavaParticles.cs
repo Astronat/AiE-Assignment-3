@@ -9,6 +9,7 @@ namespace Assignment_3 {
 	class LavaParticles {
 		public List<LParticle> Particles = new List<LParticle>(); 
 
+		//Create a new lava spark
 		public void Spark(Vector2 position, float vertMomentum, float horiMomentum, float size) {
 			Particles.Add(new LParticle(position, vertMomentum, horiMomentum, size));
 		}
@@ -27,6 +28,7 @@ namespace Assignment_3 {
 	}
 	class LParticle {
 		private float vertMomentum, horiMomentum, size, colorIntensity;
+		private bool colorGrowing = false;
 		public Vector2 Position;
 
 		public List<MiniParticle> Sparks = new List<MiniParticle>();
@@ -43,8 +45,15 @@ namespace Assignment_3 {
 			Position.X += horiMomentum;
 			Position.Y -= vertMomentum;
 
+			if (colorIntensity >= 0.9f || colorIntensity <= 0.1f) colorGrowing = !colorGrowing;
+			colorIntensity = colorIntensity + (colorGrowing ? 0.125f : -0.125f);
+
 			if (vertMomentum > -15f)
 				vertMomentum -= 0.5f;
+
+			if (Game1.GameRand.NextDouble() > 0.7) {
+				Sparks.Add(new MiniParticle(Position, (float)(Game1.GameRand.NextDouble() * 4f) - 2f, horiMomentum / 2f, 2f, Util.ColorInterpolate(Color.Red, Color.Orange, colorIntensity)));
+			}
 
 			foreach (var s in Sparks)
 				s.Update(scrollSpeed);
@@ -52,21 +61,35 @@ namespace Assignment_3 {
 			Sparks.RemoveAll(item => item.Position.Y > Game1.GameBounds.Height);
 		}
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Position.X, (int)Position.Y, (int)size, (int)size), Util.ColorInterpolate(Color.Red, Color.Yellow, colorIntensity));
+			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Position.X, (int)Position.Y, (int)size, (int)size), Util.ColorInterpolate(Color.Red, Color.Orange, colorIntensity));
 
 			foreach (var s in Sparks)
 				s.Draw(sb);
 		}
 	}
 	class MiniParticle {
-		private float vertMomentum, horiMomentum, size, colorIntensity;
+		private float vertMomentum, horiMomentum, size;
+		private Color col;
 		public Vector2 Position;
+		
+		public MiniParticle(Vector2 pos, float vertMo, float horiMo, float partSize, Color color) {
+			Position = pos;
+			vertMomentum = vertMo;
+			horiMomentum = horiMo;
+			size = partSize;
+			col = color;
+		}
 
 		public void Update(float scrollSpeed) {
+			Position.X -= scrollSpeed;
+			Position.X += horiMomentum;
+			Position.Y -= vertMomentum;
 
+			if (vertMomentum > -15f)
+				vertMomentum -= 0.5f;
 		}
 		public void Draw(SpriteBatch sb) {
-
+			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Position.X, (int)Position.Y, (int)size, (int)size), col);
 		}
 	}
 }
