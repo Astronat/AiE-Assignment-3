@@ -32,6 +32,7 @@ namespace Assignment_3 {
 		public bool Jumping = false;
 		public bool Ducking = false;
 		public bool FacingRight = true;
+		public bool Firing = true;
 
 		public Texture2D PlayerSprite;
 		public static void LoadContent(ContentManager content) {
@@ -95,6 +96,7 @@ namespace Assignment_3 {
 				VertMomentum += 0.5f;
 			if (collisions.Down && !Jumping)
 				VertMomentum = 0f;
+
 			Position.Y += VertMomentum;
 			
 			//Make sure the player can't fall through the floor
@@ -139,8 +141,46 @@ namespace Assignment_3 {
 				                            18, (int) (Bullet.BulletSize.Height*0.6f)),
 				              4, .5f, -.5f, 
 							  Color.DarkGray, Util.MuteColor(Color.DarkGray, 0.5f), Util.MuteColor(Color.DarkGray, 0.3f));
+
+				//Draw very :3 muzzle flash
+				if (Firing) {
+					//Draw main flash
+					Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X + 18,
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)) - 2,
+											(int)(Bullet.BulletSize.Height * 0.6f), (int)(Bullet.BulletSize.Height * 0.6f) + 4),
+							  4, .5f, -.5f,
+							   Color.Yellow, Util.MuteColor(Color.Orange, 0.5f), Util.MuteColor(Color.Orange, 0.3f));
+
+					//Draw smaller part
+					Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X + 18 + (int)(Bullet.BulletSize.Height * 0.6f),
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)),
+											(int)(Bullet.BulletSize.Height * 0.6f), (int)(Bullet.BulletSize.Height * 0.6f)),
+							  4, .5f, -.5f,
+							  Color.Yellow, Util.MuteColor(Color.Orange, 0.5f), Util.MuteColor(Color.Orange, 0.3f));
+				}
 			}
 			else {
+				//Draw very :3 muzzle flash
+				if (Firing) {
+					//Draw small bit of flash
+					Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X - 18 - (int)(Bullet.BulletSize.Height * 0.6f) - 4,
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)),
+											(int)(Bullet.BulletSize.Height * 0.6f), (int)(Bullet.BulletSize.Height * 0.6f)),
+							  4, .5f, -.5f,
+							  Color.Yellow, Util.MuteColor(Color.Orange, 0.5f), Util.MuteColor(Color.Orange, 0.3f));
+
+					//Draw main flash
+					Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X - 18 - 4,
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)) - 2,
+											(int)(Bullet.BulletSize.Height * 0.6f), (int)(Bullet.BulletSize.Height * 0.6f) + 4),
+							  4, .5f, -.5f,
+							   Color.Yellow, Util.MuteColor(Color.Orange, 0.5f), Util.MuteColor(Color.Orange, 0.3f));
+				}
+
 				//Draw gun, mostly just the tip
 				Util.DrawCube(sb,
 							  new Rectangle((int)CenterPosition.X - 18,

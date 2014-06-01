@@ -441,6 +441,7 @@ namespace Assignment_3 {
 				XPosition += ScrollSpeed;
 				bGround.Update(ScrollSpeed);
 
+
 				/*** COLLISIONS ***/
 
 				//Player + world collisions
@@ -476,7 +477,7 @@ namespace Assignment_3 {
 							col.RightSide = cNext.Left - 56;
 						}
 					}
-
+					
 					//Reset the previous chunk
 					lastChunk = new Rectangle((int) (chunk.X + (LineWidth/2)), chunk.Y, (int) (chunk.Width + (LineWidth/2)),
 					                          chunk.Height);
@@ -503,8 +504,11 @@ namespace Assignment_3 {
 					}
 				}
 
+				if (PlayerOne.Firing && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300)
+					PlayerOne.Firing = false;
+
 				//This is outside of player.cs to avoid having to make BulletFactory static and as such avoid some dodgy code
-				if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300 &&
+				if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 150 &&
 				    PlayerOne.AmmoCount > 0) {
 					//Reset the shot delay timer
 					lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
@@ -515,9 +519,11 @@ namespace Assignment_3 {
 					Bullets.FireBullet(
 						new Vector2(
 							PlayerOne.CenterPosition.X - (Bullet.BulletSize.Width/2f) +
-							(PlayerOne.FacingRight ? PlayerOne.HitBox.Width/2 : -(PlayerOne.HitBox.Width/2)),
-							PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height/2f) + (PlayerOne.Ducking ? PlayerOne.HitBox.Height/2 : 0)),
+							(PlayerOne.FacingRight ? PlayerOne.HitBox.Width/2 + 14 : -(PlayerOne.HitBox.Width/2 + 14)),
+							PlayerOne.CenterPosition.Y - (Bullet.BulletSize.Height / 2f) + (PlayerOne.Ducking ? PlayerOne.HitBox.Height / 2 : 0) - 2),
 						new Vector2(PlayerOne.FacingRight ? 1 : -1, 0), true, ScrollSpeed);
+
+					PlayerOne.Firing = true;
 
 					//Remove 1 ammo from player
 					PlayerOne.AmmoCount -= 1;
