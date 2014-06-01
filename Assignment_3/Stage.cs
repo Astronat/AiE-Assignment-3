@@ -173,7 +173,7 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
 					foreach(var r in t.SideDetail) {
-						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.X), (int)(Game1.GameBounds.Height - t.Height) + r.Y, r.Width, r.Height), Color.FromNonPremultiplied(30, 30, 30, 255));
+						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.Rect.X), (int)(Game1.GameBounds.Height - t.Height) + r.Rect.Y, r.Rect.Width, r.Rect.Height), r.Col);
 					}
 
 					//Draw glow on each level chunk
@@ -194,9 +194,9 @@ namespace Assignment_3 {
 					//Draw ammo shadows
 					foreach (var a in AmmoPickups) {
 						if (a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight) {
-							sb.Draw(Game1.OnePxWhite,
+							Util.DrawSkewedRectHor(sb,
 									new Rectangle(a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
-												  a.HitBox.Width, 6), Color.FromNonPremultiplied(0, 0, 0, 130));
+												  a.HitBox.Width, 6), 2, Color.FromNonPremultiplied(0, 0, 0, 130));
 						}
 					}
 				}
@@ -605,19 +605,23 @@ namespace Assignment_3 {
 	//Chunk without having to rewrite a good bit of code
 	class Chunk {
 		private RectangleF rect;
-		public List<Rectangle> SideDetail = new List<Rectangle>();
+		public List<ChunkDetail> SideDetail = new List<ChunkDetail>();
 
 		public Chunk(float x, float y, float width, float height) {
 			rect = new RectangleF(x, y, width, height);
 
 			//Create side of chunk details
-			var detailCount = Game1.GameRand.Next(30, 60);
+			var detailCount = Game1.GameRand.Next(10, 40);
 			for(var i = 0; i < detailCount; i++) {
-				var detailSize = (int)(Game1.GameRand.NextDouble()*20);
+				var detailSize = (int)(Game1.GameRand.NextDouble()*15);
 				var xPos = (int)((Width - detailSize)*Game1.GameRand.NextDouble());
 				var yPos = (int)((Height - detailSize)*Game1.GameRand.NextDouble());
 
-				SideDetail.Add(new Rectangle(xPos, yPos, detailSize, detailSize));
+				var detColor = Game1.GameRand.Next(10, 45);
+
+				SideDetail.Add(
+					new ChunkDetail(new Rectangle(xPos, yPos, detailSize, detailSize), 
+					Color.FromNonPremultiplied(detColor, detColor, detColor, 255)));
 			}
 		}
 
@@ -633,7 +637,14 @@ namespace Assignment_3 {
 		public Rectangle ToRect() {
 			return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
 		}
-
+	}
+	class ChunkDetail {
+		public Rectangle Rect;
+		public Color Col;
+		public ChunkDetail(Rectangle rect, Color col) {
+			Rect = rect;
+			Col = col;
+		}
 	}
 }
 
