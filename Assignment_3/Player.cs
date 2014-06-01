@@ -105,7 +105,7 @@ namespace Assignment_3 {
 
 		public void Draw(SpriteBatch sb) {
 			//sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen);
-			Util.DrawCube(sb, HitBox, PlayerSize.Width, 0.2f, -0.5f, Color.LightGreen, Util.MuteColor(Color.LightGreen, 0.5f),Util.MuteColor(Color.LightGreen, 0.3f));
+			Util.DrawCube(sb, HitBox, (int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, Color.LightGreen, Util.MuteColor(Color.LightGreen, 0.5f),Util.MuteColor(Color.LightGreen, 0.3f));
 			//sb.Draw(Game1.OnePxWhite, new Rectangle((int)CenterPosition.X - (FacingRight ? 0 : 18), (int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)), 18, Bullet.BulletSize.Height), Color.DarkGreen); 
 			/* Debug hitbox drawing 
 			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);

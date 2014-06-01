@@ -95,13 +95,13 @@ namespace Assignment_3 {
 
 			//Draw top
 			if (vertSkew < 0f) {
-				DrawSkewedRectHor(sb, new Rectangle(frontRect.X, (int)(frontRect.Y - depthVertSkew), frontRect.Width, (int)depthVertSkew),
+				DrawSkewedRectHor(sb, new Rectangle(frontRect.X, (frontRect.Y - depthVertSkew), frontRect.Width, depthVertSkew),
 				                       depth * horiSkew, top);
 				if (horiSkew > 0f)
 					sb.Draw(Game1.OnePxWhite, new Rectangle(frontRect.Right, frontRect.Top - depthVertSkew, depthHoriSkew, depthVertSkew), top) ;
 			}
 			else { //Draw bottom
-				DrawSkewedRectHor(sb, new Rectangle((int)(frontRect.X + depth * horiSkew), frontRect.Bottom, frontRect.Width, (int)depthVertSkew),
+				DrawSkewedRectHor(sb, new Rectangle((int)(frontRect.X + depth * horiSkew), frontRect.Bottom, frontRect.Width, depthVertSkew),
 									   -(depth * horiSkew), top);
 
 				if (horiSkew > 0f)
@@ -110,16 +110,15 @@ namespace Assignment_3 {
 			
 			if (horiSkew > 0f) { //Right
 				DrawSkewedRectVert(sb,
-								   new Rectangle(frontRect.Right, frontRect.Y, (int)depthHoriSkew, frontRect.Height+1),
+								   new Rectangle(frontRect.Right, frontRect.Y, depthHoriSkew, frontRect.Height+1),
 								   (vertSkew > 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 			else { //Left
 				DrawSkewedRectVert(sb,
-								   new Rectangle((int)(frontRect.X - depthHoriSkew), (int)(frontRect.Y - (vertSkew > 0f ? -depthVertSkew : depthVertSkew)), (int)depthHoriSkew, frontRect.Height),
+								   new Rectangle((frontRect.X - depthHoriSkew), (frontRect.Y - (vertSkew > 0f ? -depthVertSkew : depthVertSkew)), depthHoriSkew, frontRect.Height),
 								   (vertSkew < 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 
-			//sb.Draw(Game1.OnePxWhite, new Rectangle(frontRect.X, frontRect.Y, frontRect.Width + 1, frontRect.Height), front);
 			sb.Draw(Game1.OnePxWhite, frontRect, front);
 		}
 		//Draws a box

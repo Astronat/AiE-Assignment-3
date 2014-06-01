@@ -61,6 +61,7 @@ namespace Assignment_3 {
 			ScreenCenter = new Vector2(GameBounds.Width / 2f, GameBounds.Height / 2f);
 
 			eFactory = new ExplosionFactory();
+			bGround = new Background(3.0f);
 			
 			base.Initialize();
 		}
@@ -105,7 +106,7 @@ namespace Assignment_3 {
 
 			switch (gameState) {
 				case GameState.Menu:
-					bGround.Update(2.0f);
+					bGround.Update(1f);
 
 					if (lastLavaSparkTime + lavaSparkdelay < gameTime.TotalGameTime.TotalMilliseconds) {
 						lastLavaSparkTime = gameTime.TotalGameTime.TotalMilliseconds;
@@ -114,7 +115,7 @@ namespace Assignment_3 {
 						lParticles.Spark(new Vector2((float)(GameBounds.Width * GameRand.NextDouble()), GameBounds.Height - 4), (float)(16f * GameRand.NextDouble()), (float)(10f * (0.5 - GameRand.NextDouble())), 5f);
 					}
 
-					lParticles.Update(0.0f);
+					lParticles.Update(1f);
 
 					if (deathFloorIntensity >= 0.9f || deathFloorIntensity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
 					deathFloorIntensity = deathFloorIntensity + (deathFloorGrowing ? 0.005f : -0.005f);
@@ -198,7 +199,7 @@ namespace Assignment_3 {
 										  Color.FromNonPremultiplied(80, 80, 80, 255));
 
 					//Draw glow on wall
-					spriteBatch.Draw(Stage.LevelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+					spriteBatch.Draw(Stage.LevelGlow, new Rectangle(0, GameBounds.Height - 80, GameBounds.Width,
 										  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntensity)));
 
 					//Draw lava

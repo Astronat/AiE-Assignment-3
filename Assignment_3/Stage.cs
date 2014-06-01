@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -140,7 +139,7 @@ namespace Assignment_3 {
 
 			//Draw "land" behind lava so it doesn't just drop off into black
 			Util.DrawCube(sb,
-				new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+				new Rectangle(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width,
 								  40),
 								  40, 0.2f, -0.3f,
 								  Color.FromNonPremultiplied(30, 30, 30, 255),
@@ -148,7 +147,7 @@ namespace Assignment_3 {
 								  Color.FromNonPremultiplied(80, 80, 80, 255));
 
 			//Draw glow on background lava wall thing
-			sb.Draw(LevelGlow, new Rectangle(0, (int)(Game1.GameBounds.Height - 80), Game1.GameBounds.Width,
+			sb.Draw(LevelGlow, new Rectangle(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width,
 								  20), Color.FromNonPremultiplied(255, 0, 0, (int)(230 * deathFloorIntensity)));
 
 			//Draw "pits will kill you" line thingy
@@ -198,7 +197,7 @@ namespace Assignment_3 {
 					foreach (var a in AmmoPickups) {
 						if (a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight) {
 							sb.Draw(Game1.OnePxWhite,
-									new Rectangle((int)a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
+									new Rectangle(a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
 												  a.HitBox.Width, 6), Color.FromNonPremultiplied(0, 0, 0, 130));
 						}
 					}

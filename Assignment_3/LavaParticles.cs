@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -27,7 +24,8 @@ namespace Assignment_3 {
 
 	}
 	class LParticle {
-		private float vertMomentum, horiMomentum, size, colorIntensity;
+		private float vertMomentum, colorIntensity;
+		private readonly float horiMomentum, size;
 		private bool colorGrowing = false;
 		public Vector2 Position;
 
@@ -68,8 +66,9 @@ namespace Assignment_3 {
 		}
 	}
 	class MiniParticle {
-		private float vertMomentum, horiMomentum, size;
-		private Color col;
+		private float vertMomentum; 
+		private readonly float horiMomentum, size;
+		private readonly Color col;
 		public Vector2 Position;
 		
 		public MiniParticle(Vector2 pos, float vertMo, float horiMo, float partSize, Color color) {
