@@ -48,8 +48,7 @@ namespace Assignment_3 {
 			//Update player speed
 			MovementSpeed = 3.0f + stageSpeed;
 
-			//Keep the player moving with the world while grounded
-			//if (collisions.Down) //Wait no, make that just whenever
+			//Keep the player moving with the world
 			Position.X -= stageSpeed;
 
 			Ducking = ks.IsKeyDown(Keys.Down);
@@ -104,11 +103,25 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
+			var shadesColor = Color.FromNonPremultiplied(30, 30, 30, 255);
+
 			//Doubled up drawing so that if the player is facing left, the gun draws first so it's behind the character
 			if (FacingRight) {
 				//Draw player
 				Util.DrawCube(sb, HitBox, (int) (PlayerSize.Width*0.8), 0.2f, -0.5f, Color.LightGreen,
 				              Util.MuteColor(Color.LightGreen, 0.5f), Util.MuteColor(Color.LightGreen, 0.3f));
+
+				//Draw stunna shades
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.Right, HitBox.Y + 4, (int)((PlayerSize.Width * 0.8) * 0.2), 6), 
+					(int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
+				//And shade arm
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.Right - (HitBox.Width / 2), HitBox.Y + 4, (HitBox.Width / 2), 2), 
+					2, 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.Right - (HitBox.Width / 2), HitBox.Y + 6, 2, 2), 
+					2, 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
 
 				//Draw gun handle
 				Util.DrawCube(sb,
@@ -136,9 +149,22 @@ namespace Assignment_3 {
 							  4, .2f, -.5f, 
 							  Color.DarkGray, Util.MuteColor(Color.DarkGray, 0.5f), Util.MuteColor(Color.DarkGray, 0.3f));
 
+				//Draw stunna shades
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.X - (int)((PlayerSize.Width * 0.8) * 0.2), HitBox.Y + 4, (int)((PlayerSize.Width * 0.8) * 0.2), 6),
+					(int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
+
 				//Draw player
 				Util.DrawCube(sb, HitBox, (int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, Color.LightGreen,
 							  Util.MuteColor(Color.LightGreen, 0.5f), Util.MuteColor(Color.LightGreen, 0.3f));
+
+				//Stunna shade arm
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.X, HitBox.Y + 4, (HitBox.Width / 2), 2), 
+					2, 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
+				Util.DrawCube(sb,
+					new Rectangle(HitBox.X + (HitBox.Width / 2) - 2, HitBox.Y + 6, 2, 2), 
+					2, 0.2f, -0.5f, shadesColor, shadesColor, shadesColor);
 			}
 		}
 

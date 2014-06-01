@@ -192,19 +192,27 @@ namespace Assignment_3 {
 					}
 
 					//Draw ammo shadows
-					foreach (var a in AmmoPickups) {
-						if (a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight) {
-							Util.DrawSkewedRectHor(sb,
-									new Rectangle(a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
-												  a.HitBox.Width, 6), 2, Color.FromNonPremultiplied(0, 0, 0, 130));
-						}
+					foreach (var a in AmmoPickups.Where(a => a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight)) {
+						Util.DrawSkewedRectHor(sb,
+						                       new Rectangle(a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 10,
+						                                     a.HitBox.Width, 6), 2, Color.FromNonPremultiplied(0, 0, 0, 130));
+					}
+
+					//Draw bullet glow
+					foreach (var b in Bullets.Bullets.Where(item => item.HitBox.X > chunkLeft && item.HitBox.Right < chunkRight)) {
+						var ammoDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - b.HitBox.Bottom, 0, 100);
+						var distFloat = ammoDist / 100f;
+
+						sb.Draw(CircleGlow,
+								new Rectangle(b.HitBox.X - (b.HitBox.Width / 2), (int)(Game1.GameBounds.Height - t.Height) - 10,
+											  b.HitBox.Width * 2, 6), 
+											  Color.FromNonPremultiplied((!b.Friendly ? 255 : 0), (b.Friendly ? 255 : 0), 0, 50 + (int)(distFloat * 200)));
 					}
 				}
 			}
-			
-			//Draw ammo and enemies
-			foreach (var a in AmmoPickups) a.Draw(sb);
-			foreach (var e in Enemies) e.Draw(sb);
+
+			//Draw the player
+			if (PlayerOne.Alive) PlayerOne.Draw(sb);
 
 			//Draw the Ominous Wall of Death
 			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
@@ -223,9 +231,10 @@ namespace Assignment_3 {
 
 			//Draw bullets
 			Bullets.Draw(sb);
-
-			//Draw the player
-			if (PlayerOne.Alive) PlayerOne.Draw(sb);
+			
+			//Draw ammo and enemies
+			foreach (var a in AmmoPickups) a.Draw(sb);
+			foreach (var e in Enemies) e.Draw(sb);
 
 			//Draw the stage start "RUN!" text
 			if (levelStart)
@@ -601,7 +610,7 @@ namespace Assignment_3 {
 
 	}
 
-	//This mostly exists as I wanted to add things to each 
+	//This mostly exists as I wanted to add things, like the side details, to each 
 	//Chunk without having to rewrite a good bit of code
 	class Chunk {
 		private RectangleF rect;
@@ -620,8 +629,8 @@ namespace Assignment_3 {
 				var detColor = Game1.GameRand.Next(10, 45);
 
 				SideDetail.Add(
-					new ChunkDetail(new Rectangle(xPos, yPos, detailSize, detailSize), 
-					Color.FromNonPremultiplied(detColor, detColor, detColor, 255)));
+					new ChunkDetail { Rect = new Rectangle(xPos, yPos, detailSize, detailSize), 
+						Col = Color.FromNonPremultiplied(detColor, detColor, detColor, 255) });
 			}
 		}
 
@@ -633,18 +642,8 @@ namespace Assignment_3 {
 		public float Right { get { return rect.Right; }}
 		public float Top { get { return rect.Top; }}
 		public float Bottom { get { return rect.Bottom; } }
-
-		public Rectangle ToRect() {
-			return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
-		}
+		public Rectangle ToRect() { return new Rectangle((int)X, (int)Y, (int)Width, (int)Height); }
 	}
-	class ChunkDetail {
-		public Rectangle Rect;
-		public Color Col;
-		public ChunkDetail(Rectangle rect, Color col) {
-			Rect = rect;
-			Col = col;
-		}
-	}
+	struct ChunkDetail { public Rectangle Rect; public Color Col; }
 }
 
