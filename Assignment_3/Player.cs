@@ -104,13 +104,42 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
-			//sb.Draw(Game1.OnePxWhite, HitBox, Color.LightGreen);
-			Util.DrawCube(sb, HitBox, (int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, Color.LightGreen, Util.MuteColor(Color.LightGreen, 0.5f),Util.MuteColor(Color.LightGreen, 0.3f));
-			//sb.Draw(Game1.OnePxWhite, new Rectangle((int)CenterPosition.X - (FacingRight ? 0 : 18), (int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)), 18, Bullet.BulletSize.Height), Color.DarkGreen); 
-			/* Debug hitbox drawing 
-			sb.Draw(Game1.OnePxWhite, BottomBox, Color.Red);
-			sb.Draw(Game1.OnePxWhite, LeftBox, Color.Red);
-			sb.Draw(Game1.OnePxWhite, RightBox, Color.Red);*/
+			//Doubled up drawing so that if the player is facing left, the gun draws first so it's behind the character
+			if (FacingRight) {
+				//Draw player
+				Util.DrawCube(sb, HitBox, (int) (PlayerSize.Width*0.8), 0.2f, -0.5f, Color.LightGreen,
+				              Util.MuteColor(Color.LightGreen, 0.5f), Util.MuteColor(Color.LightGreen, 0.3f));
+
+				//Draw gun handle
+				Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X,
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0) + (int)(Bullet.BulletSize.Height * 0.6f)),
+											(int)(Bullet.BulletSize.Height * 0.6f), (int)(Bullet.BulletSize.Height * 0.6f)),
+							  4, .5f, -.5f, 
+							  Color.DarkGray, Util.MuteColor(Color.DarkGray, 0.5f),
+							  Util.MuteColor(Color.DarkGray, 0.3f));
+
+				//Draw gun
+				Util.DrawCube(sb,
+				              new Rectangle((int) CenterPosition.X,
+				                            (int) (CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height/2 : 0)),
+				                            18, (int) (Bullet.BulletSize.Height*0.6f)),
+				              4, .5f, -.5f, 
+							  Color.DarkGray, Util.MuteColor(Color.DarkGray, 0.5f), Util.MuteColor(Color.DarkGray, 0.3f));
+			}
+			else {
+				//Draw gun, mostly just the tip
+				Util.DrawCube(sb,
+							  new Rectangle((int)CenterPosition.X - 18,
+											(int)(CenterPosition.Y - Bullet.BulletSize.Height + (Ducking ? HitBox.Height / 2 : 0)),
+											18, (int)(Bullet.BulletSize.Height * 0.6f)),
+							  4, .2f, -.5f, 
+							  Color.DarkGray, Util.MuteColor(Color.DarkGray, 0.5f), Util.MuteColor(Color.DarkGray, 0.3f));
+
+				//Draw player
+				Util.DrawCube(sb, HitBox, (int)(PlayerSize.Width * 0.8), 0.2f, -0.5f, Color.LightGreen,
+							  Util.MuteColor(Color.LightGreen, 0.5f), Util.MuteColor(Color.LightGreen, 0.3f));
+			}
 		}
 
 		//Hitbox rectangles

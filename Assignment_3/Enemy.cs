@@ -44,13 +44,14 @@ namespace Assignment_3 {
 			Position.X -= scrollSpeed;
 		}
 		public void Draw(SpriteBatch sb) {
-			sb.Draw(Game1.OnePxWhite, HitBox, Color.LightCoral);
-
+			//Draw enemy box
+			var col = Color.LightCoral;
+			Util.DrawCube(sb, HitBox, 14, 0.4f, -0.5f, col, Util.MuteColor(col, 0.2f),
+						  Util.MuteColor(col, 0.4f));
+			
+			//Draw gun
 			Util.DrawLine(sb, CenterPosition, CenterPosition + (AimDirection * 30), 8f,
 						  Color.Red);
-
-			//Woah debug code; draws a 10x10 coral box at the location of where the turret is currently aiming
-			//sb.Draw(Game1.OnePxWhite, new Rectangle((int)Crosshair.X, (int)Crosshair.Y, 10, 10), Color.LightCoral);
 		}
 
 		//A hitbox rectangle representing the Enemy

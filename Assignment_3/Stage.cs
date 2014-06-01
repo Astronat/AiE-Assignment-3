@@ -11,7 +11,7 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Assignment_3 {
 	class Stage {
-		public List<RectangleF> GroundChunks = new List<RectangleF>();
+		public List<Chunk> GroundChunks = new List<Chunk>();
 
 		public List<Ammo> AmmoPickups = new List<Ammo>();
 		public List<Enemy> Enemies = new List<Enemy>();
@@ -68,7 +68,7 @@ namespace Assignment_3 {
 		
 		public Stage(double startTime) {
 			//Starting chunk
-			GroundChunks.Add(new RectangleF(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
+			GroundChunks.Add(new Chunk(0, Game1.GameBounds.Height - 80, Game1.GameBounds.Width * 1.5f, 80));
 
 			PlayerOne = new Player(new Vector2(Game1.GameBounds.Width / 2f, Game1.GameBounds.Height - 80 - Player.PlayerSize.Height - (LineWidth / 2f)));
 
@@ -158,12 +158,6 @@ namespace Assignment_3 {
 			//Draw each section's background
 			//This is separate from the below so that it doesn't end up drawing over the vertical sections
 			foreach (var t in GroundChunks) {
-				/* //Old 2D drawing
-				sb.Draw(Game1.OnePxWhite,
-						new Rectangle((int)(t.X - XPosition), (int)(Game1.GameBounds.Height - t.Height), (int)t.Width,
-				                      (int)t.Height), Color.FromNonPremultiplied(50,50,50,255));
-				 * */
-
 				var chunkLeft = t.X - XPosition;
 				var chunkRight = chunkLeft + t.Width;
 
@@ -178,19 +172,23 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(150, 150, 150, 255),
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
+					foreach(var r in t.SideDetail) {
+						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.X), (int)(Game1.GameBounds.Height - t.Height) + r.Y, r.Width, r.Height), Color.FromNonPremultiplied(30, 30, 30, 255));
+					}
+
 					//Draw glow on each level chunk
 					sb.Draw(LevelGlow, new Rectangle((int)chunkLeft, Game1.GameBounds.Height - 50, (int)t.Width,
 					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntensity)));
 
 
 					//Draw player shadow
-					if (PlayerOne.Position.X > chunkLeft && PlayerOne.Position.X + Player.PlayerSize.Width < chunkRight) {
+					if (PlayerOne.Position.X > chunkLeft && PlayerOne.Position.X + Player.PlayerSize.Width < chunkRight && PlayerOne.Alive) {
 						var playerDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
 						var distFloat = playerDist/100f;
 
-						sb.Draw(CircleGlow,
-								new Rectangle((int)PlayerOne.Position.X, (int)(Game1.GameBounds.Height - t.Height) - 14,
-											  Player.PlayerSize.Width, 12), Color.FromNonPremultiplied(0, 0, 0, (int)(255 * distFloat)));
+						Util.DrawSkewedRectHor(sb,
+							new Rectangle((int)(PlayerOne.Position.X - 3 + ((1.0f - distFloat) * Player.PlayerSize.Width)), (int)(Game1.GameBounds.Height - t.Height - 11),
+											  (int)(Player.PlayerSize.Width - ((1.0f - distFloat) * Player.PlayerSize.Width / 2)), 8), 4, Color.FromNonPremultiplied(0, 0, 0, (int)(150 * distFloat)));
 					}
 
 					//Draw ammo shadows
@@ -222,35 +220,6 @@ namespace Assignment_3 {
 
 			//Draw explosions
 			exFactory.Draw(sb);
-
-			/* //Old 2D drawing
-			
-			//Default chunkStart to the X position of the first chunk
-			var chunkStart = GroundChunks[0].X - XPosition;
-
-			//Draw the individual lines that make up the floor 
-			for (var i = 0; i < GroundChunks.Count; i++) {
-				//Draw horizontal lines
-				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - GroundChunks[i].Height),
-						 new Vector2(chunkStart + GroundChunks[i].Width, Game1.GameBounds.Height - GroundChunks[i].Height), LineWidth, Color.White);
-
-				//Add to the current start position before the vertical lines to simplify the below very slightly
-				chunkStart += GroundChunks[i].Width;
-
-				//Only continue if a vertical line needs to be drawn
-				if (i >= GroundChunks.Count - 1) continue;
-
-				//Get the length of the vertical difference between the current and next chunk
-				var leng = Math.Abs(GroundChunks[i].Height - GroundChunks[i + 1].Height);
-				
-				//and the bottom position for the current vertical line
-				var bottom = Math.Min(GroundChunks[i].Height, GroundChunks[i + 1].Height);
-
-				//Then draw the line
-				Util.DrawLine(sb, new Vector2(chunkStart, Game1.GameBounds.Height - bottom + (LineWidth / 2)),
-						 new Vector2(chunkStart, Game1.GameBounds.Height - bottom - leng - (LineWidth / 2)), LineWidth, Color.White);
-			}
-			*/
 
 			//Draw bullets
 			Bullets.Draw(sb);
@@ -354,8 +323,8 @@ namespace Assignment_3 {
 
 				//Add a new chunk, if it's a pit make it a good bit lower than the screen
 				GroundChunks.Add(!isPit
-									 ? new RectangleF(endWidth, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight)
-									 : new RectangleF(endWidth, Game1.GameBounds.Height + 200, rndWidth, -200));
+									 ? new Chunk(endWidth, Game1.GameBounds.Height - rndHeight, rndWidth, rndHeight)
+									 : new Chunk(endWidth, Game1.GameBounds.Height + 200, rndWidth, -200));
 
 				var spawnChance = Game1.GameRand.NextDouble();
 
@@ -467,7 +436,7 @@ namespace Assignment_3 {
 
 				//Player + world collisions
 				var col = new Collisions {Left = false, Right = false, Down = false, Floor = 500};
-				var lastChunk = Util.RectFToRect(GroundChunks[0]);
+				var lastChunk = GroundChunks[0].ToRect();
 
 				//Iterate through each chunk
 				for (var i = 0; i < GroundChunks.Count; i++) {
@@ -628,6 +597,41 @@ namespace Assignment_3 {
 					}
 				}
 			} 
+		}
+
+	}
+
+	//This mostly exists as I wanted to add things to each 
+	//Chunk without having to rewrite a good bit of code
+	class Chunk {
+		private RectangleF rect;
+		public List<Rectangle> SideDetail = new List<Rectangle>();
+
+		public Chunk(float x, float y, float width, float height) {
+			rect = new RectangleF(x, y, width, height);
+
+			//Create side of chunk details
+			var detailCount = Game1.GameRand.Next(30, 60);
+			for(var i = 0; i < detailCount; i++) {
+				var detailSize = (int)(Game1.GameRand.NextDouble()*20);
+				var xPos = (int)((Width - detailSize)*Game1.GameRand.NextDouble());
+				var yPos = (int)((Height - detailSize)*Game1.GameRand.NextDouble());
+
+				SideDetail.Add(new Rectangle(xPos, yPos, detailSize, detailSize));
+			}
+		}
+
+		public float X { get { return rect.X; } set { rect.X = value; } }
+		public float Y { get { return rect.Y; } set { rect.Y = value; } }
+		public float Width { get { return rect.Width; } set { rect.Width = value; } }
+		public float Height { get { return rect.Height; } set { rect.Height = value; } }
+		public float Left { get { return rect.Left; }}
+		public float Right { get { return rect.Right; }}
+		public float Top { get { return rect.Top; }}
+		public float Bottom { get { return rect.Bottom; } }
+
+		public Rectangle ToRect() {
+			return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
 		}
 
 	}

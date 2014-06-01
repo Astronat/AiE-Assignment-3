@@ -46,7 +46,6 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb) {
-			//sb.Draw(Game1.OnePxWhite, HitBox, Friendly ? Color.Green : Color.Red);
 			var col = Friendly ? Color.Green : Color.Red;
 
 			Util.DrawCube(sb, HitBox, 6, 0.4f, -0.5f, col, Util.MuteColor(col, 0.2f),
