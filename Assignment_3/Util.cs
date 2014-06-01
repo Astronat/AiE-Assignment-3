@@ -83,7 +83,7 @@ namespace Assignment_3 {
 		}
 		public static void DrawSkewedRectVert(SpriteBatch sb, Rectangle rect, float skewUpByPix, Color col) {
 			for (var i = 0; i < rect.Width; i++) {
-				var skewAmount = Math.Round((Convert.ToDouble(i) / Convert.ToDouble(rect.Width)) * skewUpByPix, MidpointRounding.AwayFromZero);
+				var skewAmount = (Convert.ToDouble(i) / Convert.ToDouble(rect.Width)) * skewUpByPix;
 
 				sb.Draw(Game1.OnePxWhite, new Rectangle(rect.X + i, rect.Y - (int)skewAmount, 1, rect.Height), col);
 			}
@@ -110,7 +110,7 @@ namespace Assignment_3 {
 			
 			if (horiSkew > 0f) { //Right
 				DrawSkewedRectVert(sb,
-								   new Rectangle(frontRect.Right, frontRect.Y, depthHoriSkew, frontRect.Height+1),
+								   new Rectangle(frontRect.Right, frontRect.Y, depthHoriSkew, frontRect.Height),
 								   (vertSkew > 0f ? -depthVertSkew : depthVertSkew), side);
 			}
 			else { //Left

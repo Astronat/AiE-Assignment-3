@@ -215,8 +215,13 @@ namespace Assignment_3 {
 			if (PlayerOne.Alive) PlayerOne.Draw(sb);
 
 			//Draw the Ominous Wall of Death
-			Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));
+			/*Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
+				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));*/
+			Util.DrawCube(sb, new Rectangle(-((int) (8*ScrollSpeed)/2), 0, (int) (8*ScrollSpeed), (int) (GroundChunks[0].Top - 5f)),
+			              20, 0.2f, -0.5f,
+			              Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
+			              Util.MuteColor(Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), 0.3f),
+			              Util.MuteColor(Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), 0.5f));
 
 			//Draw sparks
 			lParticles.Draw(sb);
