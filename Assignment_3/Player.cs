@@ -32,7 +32,7 @@ namespace Assignment_3 {
 		public bool Jumping = false;
 		public bool Ducking = false;
 		public bool FacingRight = true;
-		public bool Firing = true;
+		public bool Firing = false;
 
 		public Texture2D PlayerSprite;
 		public static void LoadContent(ContentManager content) {
