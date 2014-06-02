@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Assignment_3 {
@@ -46,8 +45,7 @@ namespace Assignment_3 {
 		}
 
 		public void Draw(SpriteBatch sb, float colorIntensity) {
-			var x = 0;
-			var y = 0;
+			int x, y;
 
 			//Cannon facing left
 			if (AimDirection.X >= -1f && AimDirection.X <= -0.5f) {

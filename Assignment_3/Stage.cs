@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -256,13 +255,13 @@ namespace Assignment_3 {
 
 			//Draw explosions
 			exFactory.Draw(sb);
-
-			//Draw bullets
-			Bullets.Draw(sb);
 			
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
 			foreach (var e in Enemies) e.Draw(sb, deathFloorIntensity);
+
+			//Draw bullets
+			Bullets.Draw(sb);
 
 			//Draw the stage start "RUN!" text
 			if (levelStart)
