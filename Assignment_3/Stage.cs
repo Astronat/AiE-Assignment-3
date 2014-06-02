@@ -167,7 +167,7 @@ namespace Assignment_3 {
 				if (t.Top < Game1.GameBounds.Height) { //Not a pit
 					//Draw the current chunk itself
 					Util.DrawCube(sb,
-					              new Rectangle((int)chunkLeft, (int)(Game1.GameBounds.Height - t.Height), (int) t.Width,
+					              new Rectangle((int)chunkLeft, chunkTop, (int) t.Width,
 					                            (int) t.Height - 8),
 					              40, 0.2f, -0.5f,
 					              Color.FromNonPremultiplied(50, 50, 50, 255),
@@ -177,7 +177,7 @@ namespace Assignment_3 {
 					//Draw chunk side detail
 					//Could make this 3d? might be cool but it might make the level glow a bit iffy looking
 					foreach(var r in t.SideDetail) {
-						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.Rect.X), (int)(Game1.GameBounds.Height - t.Height) + r.Rect.Y, r.Rect.Width, r.Rect.Height), r.Col);
+						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.Rect.X), chunkTop + r.Rect.Y, r.Rect.Width, r.Rect.Height), r.Col);
 					}
 
 					//Draw glow on each level chunk
@@ -186,34 +186,34 @@ namespace Assignment_3 {
 					
 					//Draw player shadow
 					if (PlayerOne.Position.X > chunkLeft && PlayerOne.Position.X + Player.PlayerSize.Width < chunkRight && PlayerOne.Alive) {
-						var playerDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
+						var playerDist = 100 - Util.Limit(chunkTop - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
 						var distFloat = playerDist/100f;
 
 						Util.DrawSkewedRectHor(sb,
-							new Rectangle((int)(PlayerOne.Position.X - 3 + ((1.0f - distFloat) * Player.PlayerSize.Width)), (int)(Game1.GameBounds.Height - t.Height - 11),
-											  (int)(Player.PlayerSize.Width - ((1.0f - distFloat) * Player.PlayerSize.Width / 2)), 8), 4, Color.FromNonPremultiplied(0, 0, 0, (int)(150 * distFloat)));
+							new Rectangle((int)(PlayerOne.Position.X - 3 + ((1.0f - distFloat) * Player.PlayerSize.Width)), chunkTop - 11,
+											  (int)(Player.PlayerSize.Width - ((1.0f - distFloat) * Player.PlayerSize.Width / 2)), 8), 4, 
+											  Color.FromNonPremultiplied(0, 0, 0, (int)(150 * distFloat)));
 					}
 
 					//Draw ammo shadows
 					foreach (var a in AmmoPickups.Where(a => a.HitBox.X > chunkLeft && a.HitBox.Right < chunkRight)) {
 						Util.DrawSkewedRectHor(sb,
-						                       new Rectangle(a.HitBox.X, (int)(Game1.GameBounds.Height - t.Height) - 10,
+						                       new Rectangle(a.HitBox.X, chunkTop - 10,
 						                                     a.HitBox.Width, 6), 2, Color.FromNonPremultiplied(0, 0, 0, 130));
 					}
 
 					//Draw bullet glow
 					foreach (var b in Bullets.Bullets.Where(item => item.HitBox.X > chunkLeft && item.HitBox.Right < chunkRight)) {
-						var ammoDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - b.HitBox.Bottom, 0, 100);
+						var ammoDist = 100 - Util.Limit(chunkTop - 8 - b.HitBox.Bottom, 0, 100);
 						var distFloat = ammoDist / 100f;
 
 						var sizeChange = 20*distFloat;
 
 						sb.Draw(CircleGlow,
-								new Rectangle(b.HitBox.X - (b.HitBox.Width / 2) - (int)(sizeChange / 2), (int)(Game1.GameBounds.Height - t.Height) - 10,
+								new Rectangle(b.HitBox.X - (b.HitBox.Width / 2) - (int)(sizeChange / 2), chunkTop - 10,
 											  b.HitBox.Width * 2 + (int)(sizeChange), 6), 
 											  Color.FromNonPremultiplied((!b.Friendly ? 255 : 0), (b.Friendly ? 255 : 0), 0, 50 + (int)(distFloat * 150)));
 					}
-
 				}
 			}
 
@@ -228,7 +228,7 @@ namespace Assignment_3 {
 			              Util.MuteColor(Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), 0.5f));
 
 			//Draw each lava spark's glow
-			foreach (var s in lParticles.Particles/*.Where(item => item.Position.X > chunkLeft && item.Position.X + 4 < chunkRight && item.Position.Y > chunkTop)*/) {
+			foreach (var s in lParticles.Particles) {
 				sb.Draw(CircleGlow,
 						new Rectangle((int)s.Position.X - 10, (int)s.Position.Y - 10, 24, 24), s.Color);
 			}

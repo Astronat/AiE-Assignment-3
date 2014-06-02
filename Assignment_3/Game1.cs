@@ -55,11 +55,14 @@ namespace Assignment_3 {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
+			//Set the game width to be a bit wider
 			graphics.PreferredBackBufferWidth = 1000;
 
+			//Simply setting a couple of static variables to make offscreen checking and such in other files easier
 			GameBounds = new Size(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 			ScreenCenter = new Vector2(GameBounds.Width / 2f, GameBounds.Height / 2f);
 
+			//Load an explosion factory for the high scores screen and a background for the main menu
 			eFactory = new ExplosionFactory();
 			bGround = new Background(3.0f);
 			
@@ -74,40 +77,58 @@ namespace Assignment_3 {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			
+			//Creates a new 1x1 white texture
 			OnePxWhite = new Texture2D(new GraphicsDevice(), 1, 1);
 			OnePxWhite.SetData(new[] { Color.White });
 
+			//Load the game's font into memory
 			GameFont = Content.Load<Texture2D>("7px3bus");
+			
+			//Attempt to load the list of high scores
 			List<HighScore> tmpScores;
+			//Attempt to deserialize from the file called "highscores"
 			if (HighScores.DeserializeScores("highscores", out tmpScores)) {
+				//If it's successful, set HighScoreList to tmpScores
 				HighScoreList = tmpScores;
 			}
 			else {
+				//If it fails, create a new randomized high score list
 				HighScoreList = HighScores.CreateScores();
+				//Then serialize them to a file to use later
 				HighScores.SerializeScores("highscores", HighScoreList);
 			}
 
+			//Load menu audio
 			menuBoop = Content.Load<SoundEffect>("menublip");
 			menuSelect = Content.Load<SoundEffect>("menuselect");
 
+			//Load stage content
 			Stage.LoadContent(Content);
 		}
 		protected override void UnloadContent() {}
 
+		//The previous frame's keyboard state
 		private KeyboardState? lastFrameState = null;
+
 		protected override void Update(GameTime gameTime) {
+			//If the last frame's keystate is null, it needs to be set up
 			if (lastFrameState == null)
 				lastFrameState = Keyboard.GetState();
 
+			//Set currState to the current state to avoid numerous calls in here
 			var currState = Keyboard.GetState();
 			
+			//If esc is pressed, go back to the menu
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-				Exit();
+				gameState = GameState.Menu;
 
+			//Main gamestate switch
 			switch (gameState) {
 				case GameState.Menu:
+					//Update the background
 					bGround.Update(1f);
 
+					//Create new lava sparks
 					if (lastLavaSparkTime + lavaSparkdelay < gameTime.TotalGameTime.TotalMilliseconds) {
 						lastLavaSparkTime = gameTime.TotalGameTime.TotalMilliseconds;
 						lavaSparkdelay = GameRand.Next(100, 1500);
@@ -115,11 +136,14 @@ namespace Assignment_3 {
 						lParticles.Spark(new Vector2((float)(GameBounds.Width * GameRand.NextDouble()), GameBounds.Height - 4), (float)(16f * GameRand.NextDouble()), (float)(10f * (0.5 - GameRand.NextDouble())), 5f);
 					}
 
+					//Update main menu lava sparks
 					lParticles.Update(1f);
 
+					//Update death floor color
 					if (deathFloorIntensity >= 0.9f || deathFloorIntensity <= 0.1f) deathFloorGrowing = !deathFloorGrowing;
 					deathFloorIntensity = deathFloorIntensity + (deathFloorGrowing ? 0.005f : -0.005f);
 
+					//X key checking for menu button presses
 					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
 						menuSelect.Play();
 						switch (menuSelected) {
@@ -136,6 +160,7 @@ namespace Assignment_3 {
 						}
 					}
 
+					//Up/down button checking
 					if (lastFrameState.Value.IsKeyUp(Keys.Up) && currState.IsKeyDown(Keys.Up)) {
 						menuBoop.Play();
 						if (menuSelected > 0)
@@ -152,12 +177,16 @@ namespace Assignment_3 {
 					}
 					break;
 				case GameState.Game:
+					//Main game update
 					gameStage.Update(Keyboard.GetState(), lastFrameState, gameTime);
+
+					//Level's over, go to high scores
 					if (gameStage.NameEntryFinished) {
 						gameState = GameState.HighScores;
 					}
 					break;
 				case GameState.HighScores:
+					//X was pressed, go back to menu
 					if (lastFrameState.Value.IsKeyUp(Keys.X) && currState.IsKeyDown(Keys.X)) {
 						menuSelect.Play();
 						gameState = GameState.Menu;
@@ -167,10 +196,12 @@ namespace Assignment_3 {
 					if (gameTime.TotalGameTime.TotalMilliseconds % 2000 < 200)
 						eFactory.Explode(new Vector2(GameRand.Next(0, GameBounds.Width), GameRand.Next(0, GameBounds.Height)), Color.LightGreen, gameTime, 400, 2000, 50, 150);
 
+					//Update background explosions
 					eFactory.Update(gameTime, 0f);
 					break;
 			}
 
+			//Update previous frame state
 			lastFrameState = Keyboard.GetState();
 			base.Update(gameTime);
 		}
@@ -206,7 +237,13 @@ namespace Assignment_3 {
 					Util.DrawLine(spriteBatch, new Vector2(0, GameBounds.Height - 30),
 						new Vector2(GameBounds.Width, GameBounds.Height - 30), 66f,
 						Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
-					
+
+					//Draw each lava spark's glow
+					foreach (var s in lParticles.Particles) {
+						spriteBatch.Draw(Stage.CircleGlow,
+								new Rectangle((int)s.Position.X - 10, (int)s.Position.Y - 10, 24, 24), s.Color);
+					}
+
 					//Draw lava sparks
 					lParticles.Draw(spriteBatch);
 
