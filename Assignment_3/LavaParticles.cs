@@ -64,6 +64,8 @@ namespace Assignment_3 {
 			foreach (var s in Sparks)
 				s.Draw(sb);
 		}
+
+		public Color Color { get { return Util.ColorInterpolate(Color.Red, Color.Orange, colorIntensity); } }
 	}
 	class MiniParticle {
 		private float vertMomentum; 

@@ -5,8 +5,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Assignment_3 {
 	class HighScores {
+		//Insert a score if it fits anywhere
 		public static void InsertScore (string name, int points, List<HighScore> scores) {
-			//Insert the score if it fits anywhere
 			if (points > scores[0].Points) scores.Insert(0, new HighScore{Name = name, Points = points});
 			else {
 				for (var i = 0; i < scores.Count - 1; i++) {
@@ -32,7 +32,7 @@ namespace Assignment_3 {
 				else if (i > 25 && i < 36) { //Followed by 0-9
 					output += (char)(48 + (i - 26));
 				}
-				else switch (i) {
+				else switch (i) { //Special characters
 					case 36:
 						output += "!";
 						break;

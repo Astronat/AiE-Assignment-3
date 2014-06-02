@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -116,7 +117,7 @@ namespace Assignment_3 {
 				var len = Util.Limit((1.0f - (centerVect - gradVect).Length() * 2f), 0.0f, 1f);
 				
 				//Set the pixel's color data
-				glowData[v] = Color.FromNonPremultiplied(255, 255, 255, (int)(len * 100));
+				glowData[v] = Color.FromNonPremultiplied(255, 255, 255, (int)(len * 230));
 
 				//Increment the row count if required
 				if (v % 255 == 0 && v > 0) rowCount++;
@@ -161,6 +162,7 @@ namespace Assignment_3 {
 			foreach (var t in GroundChunks) {
 				var chunkLeft = t.X - XPosition;
 				var chunkRight = chunkLeft + t.Width;
+				var chunkTop = (int)(Game1.GameBounds.Height - t.Height);
 
 				if (t.Top < Game1.GameBounds.Height) { //Not a pit
 					//Draw the current chunk itself
@@ -204,11 +206,14 @@ namespace Assignment_3 {
 						var ammoDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - b.HitBox.Bottom, 0, 100);
 						var distFloat = ammoDist / 100f;
 
+						var sizeChange = 20*distFloat;
+
 						sb.Draw(CircleGlow,
-								new Rectangle(b.HitBox.X - (b.HitBox.Width / 2), (int)(Game1.GameBounds.Height - t.Height) - 10,
-											  b.HitBox.Width * 2, 6), 
-											  Color.FromNonPremultiplied((!b.Friendly ? 255 : 0), (b.Friendly ? 255 : 0), 0, 50 + (int)(distFloat * 200)));
+								new Rectangle(b.HitBox.X - (b.HitBox.Width / 2) - (int)(sizeChange / 2), (int)(Game1.GameBounds.Height - t.Height) - 10,
+											  b.HitBox.Width * 2 + (int)(sizeChange), 6), 
+											  Color.FromNonPremultiplied((!b.Friendly ? 255 : 0), (b.Friendly ? 255 : 0), 0, 50 + (int)(distFloat * 150)));
 					}
+
 				}
 			}
 
@@ -221,6 +226,12 @@ namespace Assignment_3 {
 			              Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
 			              Util.MuteColor(Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), 0.3f),
 			              Util.MuteColor(Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), 0.5f));
+
+			//Draw each lava spark's glow
+			foreach (var s in lParticles.Particles/*.Where(item => item.Position.X > chunkLeft && item.Position.X + 4 < chunkRight && item.Position.Y > chunkTop)*/) {
+				sb.Draw(CircleGlow,
+						new Rectangle((int)s.Position.X - 10, (int)s.Position.Y - 10, 24, 24), s.Color);
+			}
 
 			//Draw sparks
 			lParticles.Draw(sb);
@@ -540,11 +551,12 @@ namespace Assignment_3 {
 					exFactory.Explode(new Vector2((float)(((8f * ScrollSpeed) / 2) * Game1.GameRand.NextDouble()), GroundChunks[0].Top - 5f), Color.Red, -2f, gTime, 50, 200, 3, 15);
 				}
 				
+				//Shoot sparks out of the lava
 				if (lastLavaSparkTime + lavaSparkdelay < gTime.TotalGameTime.TotalMilliseconds) {
 					lastLavaSparkTime = gTime.TotalGameTime.TotalMilliseconds;
 					lavaSparkdelay = Game1.GameRand.Next(100, 1500);
 
-					lParticles.Spark(new Vector2((float)(Game1.GameBounds.Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - 4), (float)(10f * Game1.GameRand.NextDouble()), (float)(10f * (0.5 - Game1.GameRand.NextDouble())), 5f);
+					lParticles.Spark(new Vector2((float)(Game1.GameBounds.Width * Game1.GameRand.NextDouble()), Game1.GameBounds.Height - 4), (float)(14f * Game1.GameRand.NextDouble()), (float)(10f * (0.5 - Game1.GameRand.NextDouble())), 5f);
 				}
 
 				lParticles.Update(ScrollSpeed);

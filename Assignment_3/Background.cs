@@ -11,6 +11,7 @@ namespace Assignment_3 {
 		public static float Rand() { return (float)Game1.GameRand.NextDouble(); }
 		
 		public Background(float scrollSpeed) {
+			//Run update a bunch of times simply so the background doesn't start as nothing but black
 			for (var i = 0; i < 600; i++)
 				Update(scrollSpeed);
 		}
@@ -20,20 +21,23 @@ namespace Assignment_3 {
 			if (Game1.GameRand.NextDouble() < 0.02) {
 				var rndWidth = 200*Rand();
 
+				//Set up the randomized rectangle for the block
 				var bRect = new RectangleF(Game1.GameBounds.Width + 55, 
 					Rand()*Game1.GameBounds.Height, rndWidth,
-					rndWidth*Rand());
+					rndWidth*(Rand() + 0.3f));
 
+				//Add a new randomized block
 				blocks.Add(new Block {
 					BlockColor = Util.RandomShadeOfGrey(0.7f), 
 					ScrollDepth = Util.Limit(Rand(), 0.01f, 1.0f), 
 					BlockRect = bRect, 
 					BlockDepth = Game1.GameRand.Next(10, 50)});
 
+				//Sort the blocks by their scroll depth so closer ones draw later
 				blocks.Sort((a, b) => Comparer<double>.Default.Compare(a.ScrollDepth, b.ScrollDepth));
 			}
 
-			//Add new little debris "stars"
+			//Add new little debris "stars"; effectively the same as above but SMALLER
 			if (Game1.GameRand.NextDouble() < 0.02) {
 				var rndSize = 6f * (Rand());
 
@@ -52,6 +56,8 @@ namespace Assignment_3 {
 			foreach(var bl in blocks) {
 				bl.BlockRect.X -= scrollSpeed*(float)bl.ScrollDepth;
 			}
+
+			//Remove all offscreen blocks
 			blocks.RemoveAll(item => item.BlockRect.Right + item.BlockDepth < 0);
 		}
 
