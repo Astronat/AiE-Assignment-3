@@ -509,11 +509,11 @@ namespace Assignment_3 {
 					}
 				}
 
-				if (PlayerOne.Firing && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300)
+				if (PlayerOne.Firing && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 100)
 					PlayerOne.Firing = false;
 
 				//This is outside of player.cs to avoid having to make BulletFactory static and as such avoid some dodgy code
-				if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 150 &&
+				if (kState.IsKeyDown(Keys.Z) && gTime.TotalGameTime.TotalMilliseconds > lastShotTime + 300 &&
 				    PlayerOne.AmmoCount > 0) {
 					//Reset the shot delay timer
 					lastShotTime = gTime.TotalGameTime.TotalMilliseconds;
