@@ -49,14 +49,15 @@ namespace Assignment_3 {
 			var x = 0;
 			var y = 0;
 
+			//Cannon facing left
 			if (AimDirection.X >= -1f && AimDirection.X <= -0.5f) {
 				x = HitBox.X - 8;
 				y = Util.Limit((int)(HitBox.Y + (HitBox.Height / 2) + (HitBox.Height * AimDirection.Y)) - 5, HitBox.Y, HitBox.Y + HitBox.Height);
-			}
+			}//Facing right
 			else if (AimDirection.X >= 0.5f && AimDirection.X <= 1f) {
 				x = HitBox.Right + 2;
 				y = Util.Limit((int)(HitBox.Y + (HitBox.Height / 2) + (HitBox.Height * AimDirection.Y)) - 5, HitBox.Y, HitBox.Y + HitBox.Height);
-			}
+			}//Up
 			else {
 				y = HitBox.Y - 12;
 				x = Util.Limit((int)(HitBox.X + (HitBox.Width / 2) + (HitBox.Width * (AimDirection.X))), HitBox.X, HitBox.X + HitBox.Width);
@@ -64,7 +65,7 @@ namespace Assignment_3 {
 
 			//Draw enemy box
 			//Draw before the cannon if the cannon is not facing left
-			if (!(AimDirection.X > -1f && AimDirection.X < -0.5f)) {
+			if (AimDirection.X >= -0.5f && AimDirection.X <= 1f) {
 				DrawTurretBox(sb, colorIntensity);
 			}
 
@@ -73,20 +74,19 @@ namespace Assignment_3 {
 						  Color.Red, Util.MuteColor(Color.Red, 0.3f), Util.MuteColor(Color.Red, 0.5f));
 
 			//Draw after the cannon if it IS facing left
-			if (AimDirection.X > -1f && AimDirection.X < -0.5f) {
+			if (AimDirection.X >= -1f && AimDirection.X <= -0.5f) {
 				DrawTurretBox(sb, colorIntensity);
 			}
-			
-			//Draw crosshair
-			sb.Draw(Game1.OnePxWhite, new Rectangle((int)Crosshair.X, (int) Crosshair.Y, 10, 10),Color.Fuchsia);
 		}
 
 		private void DrawTurretBox(SpriteBatch sb, float colorIntensity) {
+			//Draw the box itself
 			Util.DrawCube(sb, HitBox, 30, 0.2f, -0.5f,
 						  Color.FromNonPremultiplied(50, 50, 50, 255),
 						  Color.FromNonPremultiplied(150, 150, 150, 255),
 						  Color.FromNonPremultiplied(100, 100, 100, 255));
 
+			//Draw side glow box
 			var sideGlowRect = HitBox;
 			sideGlowRect.Inflate(-10, -10);
 			Util.DrawBox(sb, sideGlowRect, 2f, Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, colorIntensity));
