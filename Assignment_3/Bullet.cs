@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -65,9 +64,7 @@ namespace Assignment_3 {
 			var tmpDir = Vector2.Negate(Direction);
 			var varianceX = (float)(tmpDir.X + 0.5f * (0.5f * Game1.GameRand.NextDouble()));
 			var varianceY = (float)(tmpDir.Y + 2f * (0.5f * Game1.GameRand.NextDouble()));
-
-			Console.WriteLine(varianceX);
-
+			
 			if (Game1.GameRand.NextDouble() < 0.2) {
 				Sparks.Add(new BulletSpark(Position, 
 					new Vector2(varianceX, varianceY), 
