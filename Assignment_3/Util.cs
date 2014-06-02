@@ -110,6 +110,23 @@ namespace Assignment_3 {
 		}
 
 		/// <summary>
+		/// Draws a line between two points
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw with</param>
+		/// <param name="a">the line's start position</param>
+		/// <param name="b">the line's end position</param>
+		/// <param name="thickness">the line thickness</param>
+		/// <param name="color">the line color</param>
+		public static void DrawGlowLine(SpriteBatch sb, Vector2 a, Vector2 b, float thickness, Color color) {
+			var tan = b - a;
+			var rotation = (float)Math.Atan2(tan.Y, tan.X);
+
+			var middlePoint = new Vector2(0, Stage.LineGlow.Height / 2f);
+			var scale = new Vector2(tan.Length(), thickness);
+
+			sb.Draw(Stage.LineGlow, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
+		}
+		/// <summary>
 		/// Draws a horizontally skewed rectangle
 		/// </summary>
 		/// <param name="sb">the SpriteBatch to draw to</param>
@@ -198,6 +215,21 @@ namespace Assignment_3 {
 
 			DrawLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X, rect.Y + rect.Height), lineWidth, col); //Left
 			DrawLine(sb, new Vector2(rect.X + rect.Width, rect.Y), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Right
+		}
+
+		/// <summary>
+		/// Draws a rectangle
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="rect">the rectangle to draw</param>
+		/// <param name="lineWidth">the width of the outline</param>
+		/// <param name="col">the color to draw the line with</param>
+		public static void DrawGlowBox(SpriteBatch sb, Rectangle rect, float lineWidth, Color col) {
+			DrawGlowLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X + rect.Width, rect.Y), lineWidth, col); //Top
+			DrawGlowLine(sb, new Vector2(rect.X, rect.Y + rect.Height), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Bottom
+
+			DrawGlowLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X, rect.Y + rect.Height), lineWidth, col); //Left
+			DrawGlowLine(sb, new Vector2(rect.X + rect.Width, rect.Y), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Right
 		}
 
 		/// <summary>

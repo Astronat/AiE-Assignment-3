@@ -28,6 +28,7 @@ namespace Assignment_3 {
 
 		public static Texture2D LevelGlow;
 		public static Texture2D CircleGlow;
+		public static Texture2D LineGlow;
 
 		private static SoundEffect nameEntryBoop;
 		private static SoundEffect enemyExplodeBoop;
@@ -126,6 +127,18 @@ namespace Assignment_3 {
 			//Apply the above pixel array's data to the texture
 			CircleGlow.SetData(glowData);
 
+			//Create a center gradient
+			LineGlow = new Texture2D(new GraphicsDevice(), 1, 255);
+
+			glowData = new Color[255];
+			for (var i = 0; i < glowData.Length; i++) {
+				var p = i/(glowData.Length / 2f);
+				if (p > 1) p = 1f - (p - 1);
+
+				glowData[i] = Color.FromNonPremultiplied(255, 255, 255, (int)(p*155));
+			}
+
+			LineGlow.SetData(glowData);
 			//Load all the sounds
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
@@ -249,7 +262,7 @@ namespace Assignment_3 {
 			
 			//Draw ammo and enemies
 			foreach (var a in AmmoPickups) a.Draw(sb);
-			foreach (var e in Enemies) e.Draw(sb);
+			foreach (var e in Enemies) e.Draw(sb, deathFloorIntensity);
 
 			//Draw the stage start "RUN!" text
 			if (levelStart)
