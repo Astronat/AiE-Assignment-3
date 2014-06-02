@@ -431,7 +431,7 @@ namespace Assignment_3 {
 				}
 
 				//Update bullets
-				Bullets.Update();
+				Bullets.Update(gTime);
 
 				//Remove all dead objects
 				AmmoPickups.RemoveAll(item => !item.Alive);
