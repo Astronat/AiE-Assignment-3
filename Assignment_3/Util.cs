@@ -25,6 +25,12 @@ namespace Assignment_3 {
 			return Color.FromNonPremultiplied(r, g, b, 255);
 		}
 
+		/// <summary>
+		/// Generates a randomized color which is similar to the input color
+		/// </summary>
+		/// <param name="inputColor">the input color</param>
+		/// <param name="maxDifference">a float from 0.0-1.0 determining the maximum difference</param>
+		/// <returns></returns>
 		public static Color SimilarColor (Color inputColor, float maxDifference) {
 			var diff = (int) (maxDifference*255);
 			
@@ -35,6 +41,12 @@ namespace Assignment_3 {
 			return Color.FromNonPremultiplied(r, g, b, 255);
 		}
 
+		/// <summary>
+		/// Generates a muted version of the input color
+		/// </summary>
+		/// <param name="input">the color to mute</param>
+		/// <param name="amount">the amount to mute by</param>
+		/// <returns></returns>
 		public static Color MuteColor(Color input, float amount) {
 			return Color.FromNonPremultiplied(
 				Limit((int) (input.R*(1.0f - amount)), 0, 255),
@@ -43,6 +55,11 @@ namespace Assignment_3 {
 				input.A);
 		}
 
+		/// <summary>
+		/// Generates a monochrome color between white and black
+		/// </summary>
+		/// <param name="fromWhite">The maximum amount of difference from 255/255/255, flat white</param>
+		/// <returns></returns>
 		public static Color RandomShadeOfGrey(float fromWhite) {
 			var val = 255 - ((int)(Game1.GameRand.NextDouble() * (255 * fromWhite)));
 			return Color.FromNonPremultiplied(val, val, val, 255);
@@ -50,18 +67,38 @@ namespace Assignment_3 {
 		#endregion
 
 		#region Math/Conversion functions
+		/// <summary>
+		/// Limits an input value to a minimum and maximum
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="input">the input value</param>
+		/// <param name="min">the minimum limit</param>
+		/// <param name="max">the maximum limit</param>
+		/// <returns></returns>
 		public static T Limit<T>(T input, T min, T max) {
 			if (Comparer<T>.Default.Compare(input, max) > 0) return max;
 			return Comparer<T>.Default.Compare(min, input) > 0 ? min : input;
 		}
 
+		/// <summary>
+		/// Effectively casts a RectangleF to a Rectangle
+		/// </summary>
+		/// <param name="input">the input RectangleF</param>
+		/// <returns></returns>
 		public static Rectangle RectFToRect(RectangleF input) {
 			return new Rectangle((int)input.X, (int)input.Y, (int)input.Width, (int)input.Height);
 		}
 		#endregion
 
 		#region Drawing functions
-		//Effectively draws a white line between two points
+		/// <summary>
+		/// Draws a line between two points
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw with</param>
+		/// <param name="a">the line's start position</param>
+		/// <param name="b">the line's end position</param>
+		/// <param name="thickness">the line thickness</param>
+		/// <param name="color">the line color</param>
 		public static void DrawLine(SpriteBatch sb, Vector2 a, Vector2 b, float thickness, Color color) {
 			var tan = b - a;
 			var rotation = (float)Math.Atan2(tan.Y, tan.X);
@@ -72,6 +109,13 @@ namespace Assignment_3 {
 			sb.Draw(Game1.OnePxWhite, a, null, color, rotation, middlePoint, scale, SpriteEffects.None, 0f);
 		}
 
+		/// <summary>
+		/// Draws a horizontally skewed rectangle
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="rect">the base rectangle; at 0.0 skewRight this function will just draw this rectangle</param>
+		/// <param name="skewRightByPix">the amount to skew the top by</param>
+		/// <param name="col">the color to draw the rectangle as</param>
 		public static void DrawSkewedRectHor(SpriteBatch sb, Rectangle rect, float skewRightByPix, Color col) {
 			for (var i = 0; i < rect.Height; i++) {
 				var skewAmount = Math.Round((Convert.ToDouble(i) / Convert.ToDouble(rect.Height)) * skewRightByPix, MidpointRounding.AwayFromZero);
@@ -81,6 +125,14 @@ namespace Assignment_3 {
 						rect.Y + i, rect.Width, 1), col);
 			}
 		}
+
+		/// <summary>
+		/// Draws a vertically skewed rectangle
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="rect">the base rectangle; at 0.0 skewUp this function will just draw this rectangle</param>
+		/// <param name="skewUpByPix">the amount to skew the right side up by</param>
+		/// <param name="col">the color to draw the rectangle as</param>
 		public static void DrawSkewedRectVert(SpriteBatch sb, Rectangle rect, float skewUpByPix, Color col) {
 			for (var i = 0; i < rect.Width; i++) {
 				var skewAmount = (Convert.ToDouble(i) / Convert.ToDouble(rect.Width)) * skewUpByPix;
@@ -89,6 +141,17 @@ namespace Assignment_3 {
 			}
 		}
 
+		/// <summary>
+		/// Draws a very basic fake 3D "cube"
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="frontRect">a rectangle representing the face facing the screen</param>
+		/// <param name="depth">the "depth" of the cube</param>
+		/// <param name="horiSkew">the amount to skew horizontally</param>
+		/// <param name="vertSkew">the amount to skew vertically</param>
+		/// <param name="front">the front face color</param>
+		/// <param name="top">the top and bottom face colors</param>
+		/// <param name="side">the side colors</param>
 		public static void DrawCube(SpriteBatch sb, Rectangle frontRect, int depth, float horiSkew, float vertSkew, Color front, Color top, Color side) {
 			var depthVertSkew = (int)Math.Abs(depth * vertSkew);
 			var depthHoriSkew = (int)Math.Abs(depth * horiSkew);
@@ -121,7 +184,14 @@ namespace Assignment_3 {
 
 			sb.Draw(Game1.OnePxWhite, frontRect, front);
 		}
-		//Draws a box
+		
+		/// <summary>
+		/// Draws a rectangle
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="rect">the rectangle to draw</param>
+		/// <param name="lineWidth">the width of the outline</param>
+		/// <param name="col">the color to draw the line with</param>
 		public static void DrawBox(SpriteBatch sb, Rectangle rect, float lineWidth, Color col) {
 			DrawLine(sb, new Vector2(rect.X, rect.Y), new Vector2(rect.X + rect.Width, rect.Y), lineWidth, col); //Top
 			DrawLine(sb, new Vector2(rect.X, rect.Y + rect.Height), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Bottom
@@ -130,19 +200,42 @@ namespace Assignment_3 {
 			DrawLine(sb, new Vector2(rect.X + rect.Width, rect.Y), new Vector2(rect.X + rect.Width, rect.Y + rect.Height), lineWidth, col); //Right
 		}
 
-		//Draws a polygon out of lines
-		public static void DrawPoly(SpriteBatch sb, float lineWidth, Color col, params Vector2[] points) {
+		/// <summary>
+		/// Draws an outline of a polygon
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="lineWidth">the width of the line</param>
+		/// <param name="col">the color to draw the line as</param>
+		/// <param name="complete">if it's set to true, the line will automatically complete between the last and first point</param>
+		/// <param name="points">each of the points to draw lines between</param>
+		public static void DrawPoly(SpriteBatch sb, float lineWidth, Color col, bool complete, params Vector2[] points) {
+			//If there's less than 2 points then just return
 			if (points.Length <= 1) return;
 
+			//else continue and draw lines between each of the points
 			for (var i = 0; i < points.Length-1; i++) {
 				var p = points[i];
 				var pP = points[i + 1];
 
 				DrawLine(sb, p, pP, lineWidth, col);
 			}
+			
+			//And then finish the line if complete is true
+			if (complete)
+				DrawLine(sb, points[points.Length - 1], points[0], lineWidth, col);
 		}
 		
-		//Uses the below DrawFont() function to draw multiple lines to the screen
+		/// <summary>
+		/// Draws the game font to the SpriteBatch with basic line wrapping
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw to</param>
+		/// <param name="text">the text to draw</param>
+		/// <param name="location">the starting location of the text</param>
+		/// <param name="color">the color to draw the text with</param>
+		/// <param name="maxWidth">the maximum line width before the text starts to wrap</param>
+		/// <param name="size">the height/width of each character</param>
+		/// <param name="stringAlignment">the anchor for the string's start position, Left makes the text go right from location</param>
+		/// <param name="stringAlignmentVert">the vertical string alignment, Below makes the text draw below location</param>
 		public static void DrawFontMultiLine(SpriteBatch sb, object text, Vector2 location, Color color, float maxWidth, float size = 32f,
 			StringAlignment stringAlignment = StringAlignment.Left, StringAlignmentVert stringAlignmentVert = StringAlignmentVert.Below
 		) {
@@ -180,7 +273,15 @@ namespace Assignment_3 {
 			}
 		}
 
-		//Draws a string to the screen using the specified SpriteBatch
+		/// <summary>
+		/// Draws a string using the game's font to the given SpriteBatch
+		/// </summary>
+		/// <param name="sb">the SpriteBatch to draw with</param>
+		/// <param name="text">the text to draw</param>
+		/// <param name="location">the position for the text to start at</param>
+		/// <param name="color">the color to draw the text with</param>
+		/// <param name="size">the height of each character</param>
+		/// <param name="stringAlignment">the anchor for the string's start position, Left makes the text go right from location</param>
 		public static void DrawFont(SpriteBatch sb, object text, Vector2 location, Color color, float size = 32f, StringAlignment stringAlignment = StringAlignment.Left) {
 			//Convert to a char array of uppercase characters to simplify the below process
 			var inputCharacters = text.ToString().ToUpper().ToCharArray();

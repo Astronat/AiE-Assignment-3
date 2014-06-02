@@ -181,7 +181,7 @@ namespace Assignment_3 {
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.Black);
-			graphics.PreferMultiSampling = true;
+
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
 			switch (gameState) {
@@ -221,6 +221,7 @@ namespace Assignment_3 {
 					//var glowyCol = Util.ColorInterpolate(Color.White, Color.Red, deathFloorIntensity);
 					var glowyCol = Color.Red;
 
+					//Draw all menu text
 					Util.DrawFontMultiLine(spriteBatch, "RUN", new Vector2(GameBounds.Width / 2f, 30),
 						glowyCol, GameBounds.Width, 80f, StringAlignment.Center);
 
@@ -239,17 +240,21 @@ namespace Assignment_3 {
 					
 					break;
 				case GameState.Game:
+					//Draw the game itself
 					gameStage.Draw(spriteBatch);
 					break;
 				case GameState.HighScores:
+					//Draw background 'fireworks'
 					eFactory.Draw(spriteBatch);
 
 					//Draw transparent black square on entire screen
 					spriteBatch.Draw(OnePxWhite, new Rectangle(0, 0, GameBounds.Width, GameBounds.Height), Color.FromNonPremultiplied(0, 0, 0, 90));
 
+					//Draw high score text
 					Util.DrawFontMultiLine(spriteBatch, "High Scores", new Vector2(GameBounds.Width / 2f, 10),
 						Color.Red, GameBounds.Width, 60f, StringAlignment.Center);
 
+					//Draw high scores
 					for (var i = 0; i < HighScoreList.Count; i++) {
 						var hs = HighScoreList[i];
 						
@@ -257,9 +262,9 @@ namespace Assignment_3 {
 							Color.White, GameBounds.Width, 32f, StringAlignment.Center);
 					}
 
+					//Draw Press X text
 					Util.DrawFontMultiLine(spriteBatch, "Press X", new Vector2(GameBounds.Width / 2f, GameBounds.Height - 2),
 						Color.White, GameBounds.Width, 24f, StringAlignment.Center, StringAlignmentVert.Above);
-
 					break;
 			}
 

@@ -81,6 +81,7 @@ namespace Assignment_3 {
 			Player.LoadContent(content);
 
 			//Create glow sprite for the lava
+			//This is just programmatically creating a 1x255 vertical gradient
 			LevelGlow = new Texture2D(new GraphicsDevice(), 1, 255);
 			var glowData = new Color[255];
 			for (var i = 0; i < 255; i++) {
@@ -124,6 +125,7 @@ namespace Assignment_3 {
 			//Apply the above pixel array's data to the texture
 			CircleGlow.SetData(glowData);
 
+			//Load all the sounds
 			nameEntryBoop = content.Load<SoundEffect>("menuselect");
 			enemyExplodeBoop = content.Load<SoundEffect>("enemyexplode");
 			playerExplodeBoop = content.Load<SoundEffect>("playerexplode");
@@ -155,15 +157,13 @@ namespace Assignment_3 {
 				new Vector2(Game1.GameBounds.Width, Game1.GameBounds.Height - 30), 66f,
 				Util.ColorInterpolate(Color.FromNonPremultiplied(30, 30, 30, 255), Color.Red, deathFloorIntensity));
 
-			//Draw each section's background
-			//This is separate from the below so that it doesn't end up drawing over the vertical sections
+			//Draw each level chunk
 			foreach (var t in GroundChunks) {
 				var chunkLeft = t.X - XPosition;
 				var chunkRight = chunkLeft + t.Width;
 
-				//New 3D hotness
 				if (t.Top < Game1.GameBounds.Height) { //Not a pit
-					//Draw each level chunk
+					//Draw the current chunk itself
 					Util.DrawCube(sb,
 					              new Rectangle((int)chunkLeft, (int)(Game1.GameBounds.Height - t.Height), (int) t.Width,
 					                            (int) t.Height - 8),
@@ -172,6 +172,8 @@ namespace Assignment_3 {
 					              Color.FromNonPremultiplied(150, 150, 150, 255),
 					              Color.FromNonPremultiplied(100, 100, 100, 255));
 
+					//Draw chunk side detail
+					//Could make this 3d? might be cool but it might make the level glow a bit iffy looking
 					foreach(var r in t.SideDetail) {
 						sb.Draw(Game1.OnePxWhite, new Rectangle((int)(chunkLeft + r.Rect.X), (int)(Game1.GameBounds.Height - t.Height) + r.Rect.Y, r.Rect.Width, r.Rect.Height), r.Col);
 					}
@@ -179,8 +181,7 @@ namespace Assignment_3 {
 					//Draw glow on each level chunk
 					sb.Draw(LevelGlow, new Rectangle((int)chunkLeft, Game1.GameBounds.Height - 50, (int)t.Width,
 					                                 50), Color.FromNonPremultiplied(255, 0, 0, (int) (230*deathFloorIntensity)));
-
-
+					
 					//Draw player shadow
 					if (PlayerOne.Position.X > chunkLeft && PlayerOne.Position.X + Player.PlayerSize.Width < chunkRight && PlayerOne.Alive) {
 						var playerDist = 100 - Util.Limit((int)(Game1.GameBounds.Height - t.Height) - 8 - (PlayerOne.Position.Y + Player.PlayerSize.Height), 0, 100);
@@ -215,8 +216,6 @@ namespace Assignment_3 {
 			if (PlayerOne.Alive) PlayerOne.Draw(sb);
 
 			//Draw the Ominous Wall of Death
-			/*Util.DrawLine(sb, new Vector2(0, 0), new Vector2(0, GroundChunks[0].Top - 5f), 8f * ScrollSpeed,
-				Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));*/
 			Util.DrawCube(sb, new Rectangle(-((int) (8*ScrollSpeed)/2), 0, (int) (8*ScrollSpeed), (int) (GroundChunks[0].Top - 5f)),
 			              20, 0.2f, -0.5f,
 			              Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
@@ -295,12 +294,10 @@ namespace Assignment_3 {
 					             Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity));
 
 					if (highScoreNameSelected != 3) {
-						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
-						              new Vector2(boxX + 29, 305), new Vector2(boxX + 13, 305), new Vector2(boxX + 21, 295), //Draw the three arrow points
-						              new Vector2(boxX + 29, 305)); //Then go back to the start
-						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity),
-						              new Vector2(boxX + 29, 359), new Vector2(boxX + 13, 359), new Vector2(boxX + 21, 369),
-						              new Vector2(boxX + 29, 359));
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), true,
+						              new Vector2(boxX + 29, 305), new Vector2(boxX + 13, 305), new Vector2(boxX + 21, 295));
+						Util.DrawPoly(sb, 2f, Util.ColorInterpolate(Color.White, Color.Red, deathWallIntensity), true,
+						              new Vector2(boxX + 29, 359), new Vector2(boxX + 13, 359), new Vector2(boxX + 21, 369));
 					}
 
 				} else {
@@ -618,7 +615,6 @@ namespace Assignment_3 {
 				}
 			} 
 		}
-
 	}
 
 	//This mostly exists as I wanted to add things, like the side details, to each 
